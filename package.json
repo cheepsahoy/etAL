@@ -1,0 +1,14 @@
+{
+  "name": "etal",
+  "version": "1.0.0",
+  "description": "Data visualizer for citations",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.5.0"
+  }
+}
