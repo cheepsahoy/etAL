@@ -1,8 +1,8 @@
 /**
- * @typedef OAWorkObject
+ * @typedef {object} OA_WorkObject
  * @property {object} abstract_inverted_index
  * Each word is key, value is its word# in the abstract
- * @property {array} authorships
+ * @property {OA_AuthorshipObj} authorships
  * @property {object} apc_list
  * @property {{
  *  'value': integer,
@@ -10,13 +10,7 @@
  *  'provenance': String,
  *  'value_usd': integer,
  * }} apc_paid
- * @property { {
- *  'is_oa': boolean,
- *  'land_page_url': string,
- *  'pdf_url': string,
- *  'source': object,
- *  'license': string,
- *  'version': string}} best_oa_location
+ * @property {OA_LocationObj} best_oa_location
  * @property {{
  *  'volume': string,
  *  'issue': string,
@@ -71,29 +65,12 @@
  * score: integer,
  * @property {string} language
  * @property {string} license
- * @property {array} locations
- * provides array of locations object has been, mulitple properties w/ objects - not reproducing for clutter
+ * @property {array<OA_LocationObj} locations
  * @property {integer} locations_count
  * @property {array} mesh
  * array of mesh properties, relevent for PubMed only
- * @property {{
- *  'is_oa': boolean,
- *  'oa_status': string,
- *  'oa_url': string,
- *  'any_repository_has_fulltext': boolean}} open_access
- * @property {{
- *  'is_oa': boolean,
- *  'landing_page_url': string,
- *  'pdf_url': string,
- *  'source': object
- *      'id': string,
- *      'display_name': string,
- *      'issn_1': string,
- *      'issn': array,
- *      'host_organization': string,
- *      'type': string,
- *  'license': string,
- *  'version': string}} primary_location
+ * @property {OA_OpenAccessObj} open_access
+ * @property {OA_LocationObj} primary_location
  * @property {{
  *  'id': string,
  *  'display_name': string,
@@ -120,3 +97,122 @@
  * @property {string} type_crossref
  * @property {string} updated_date
  */
+
+
+/**
+ * @typedef {object} OA_OpenAccessObj
+ * @property {boolean} any_repository_has_fulltext
+ * @property {boolean} is_oa
+ * @property {string} oa_status
+ * @property {string} oa_url
+ */
+
+
+/**
+ * @typedef {object} OA_AuthorshipObj
+ * @property {array} affiliations
+ * @property {string} author
+ * @property {string} author_position
+ * @property {array} countries
+ * @property {array} institutions
+ * each institution is an object with the following properties:
+ * id: string,
+ * display_name: string,
+ * ror: string,
+ * country_code: string,
+ * type: string,
+ * lineage: array
+ * @property {boolean} is_corresponding
+ * @property {array} raw_affiliation_strings
+ * @property {string} raw_author_name
+ */
+
+
+/**
+ * @typedef {object} OA_LocationObj
+ * @property {boolean} is_accepted
+ * @property {boolean} is_oa
+ * @property {boolean} is_published
+ * @property {string} landing_page_url
+ * @property {string} license
+ * @property {{
+ *  'id': string,
+ *  'display_name': string,
+ *  'issn_1': string,
+ *  'issn': array,
+ *  'host_organization': string,
+ *  'type': journal}} source
+ * @property {string} pdf_url
+ * @property {string} version
+ * 3 versions possible: publishedVersion || acceptedVersion || submittedVersion
+ */
+
+
+/**
+ * @typedef {OA_dehydrated_InstitutionObj} OA_InstitutionObj
+ * @property {array < OA_dehydrated_InstitutionObj} associated_institutions
+ * //also contains a "relationship" property, possible values are: parent || child || related
+ * @property {integer} cited_by_count
+ * @property {array < {
+ *  "year": integer,
+ *  "works_count": integer,
+ *  "cited_by_count": integer}} counts_by_year
+ * @property {string} created_date
+ * @property {array} display_name_alternatives
+ * @property {{
+ *  "city": string,
+ *  "geonames_city_id": string,
+ *  "region": string,
+ *  "country_code": string,
+ *  "country": string,
+ *  "latitude": integer,
+ *  "longitude": integer}} geo
+ * @property {string} homepage_url
+ * @property {
+ *  "grid"?: string,
+ *  "mag"?: integer,
+ *  "openalex"?: string,
+ *  "ror"?: string,
+ *  "wikipedia"?: string,
+ *  "wikidata"?: string} ids
+ * @property {string} image_thumbnail_url
+ * @property {boolean} is_super_system
+ * @property {string} image_url
+ * @property {object} international
+ * //key-value pairs of the institution's display_name in different languages, e.g.: "ar": شابل هيل, "es": Universidad .... etc.
+ * @property {array < } repositories
+ */
+
+
+/**
+ * @typedef {object} OA_dehydrated_InstitutionObj
+ * @property {string} country_code
+ * @property {string} display_name
+ * @property {string} id
+ * @property {array} lineage
+ * @property {string} ror
+ * @property {string} type
+ * //Possible values: education || healthcare || company || archive || nonprofit || government || facility || other
+ */
+
+
+/**
+ * @typedef {object} OA_dehydrated_SourceObj
+ * @property {string} display_name
+ * @property {string} host_organization
+ * @property {array} host_organization_lineage
+ * @property {string} host_organization_name
+ * @property {string} id
+ * @property {boolean} is_core
+ * @property {boolean} is_in_doaj
+ * @property {boolean} is_oa
+ * @property {array} issn
+ * @property {string} issn_1
+ * @property {string} type
+ * //Possible values: journal || repository || conference || ebook platform|| book series || metadata || other
+ */
+
+
+
+
+//filled with objects with keys:values of [institution: OA_dehydrated_InstitutionObj and a "years": array]
