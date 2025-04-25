@@ -65,7 +65,7 @@
  * score: integer,
  * @property {string} language
  * @property {string} license
- * @property {array<OA_LocationObj} locations
+ * @property {array < OA_LocationObj} locations
  * @property {integer} locations_count
  * @property {array} mesh
  * array of mesh properties, relevent for PubMed only
@@ -141,7 +141,7 @@
  *  'issn_1': string,
  *  'issn': array,
  *  'host_organization': string,
- *  'type': journal}} source
+ *  'type': string}} source
  * @property {string} pdf_url
  * @property {string} version
  * 3 versions possible: publishedVersion || acceptedVersion || submittedVersion
@@ -185,6 +185,42 @@
 
 
 /**
+ * @typedef {OA_dehydrated_Author} OA_AuthorObj
+ * @property {array < {
+ *  "institution": OA_dehydrated_InstitutionObj,
+ *  "years": integer}} affiliations
+ * @property {integer} cited_by_count
+ * @property {array < {
+ *  "year": integer,
+ *  "works_count": integer,
+ *  "cited_by_count": integer}} counts_by_year
+ * @property {string} created_date
+ * @property {string} display_name_alternatives
+ * @property {
+ *  "openalex"?: string,
+ *  "orcid"?: string,
+ *  "scopus"?: string,
+ *  "twitter"?: string,
+ *  "wikipedia"?: string} ids
+ * @property {array < OA_dehydrated_InstitutionObj} last_known_institutions
+ * @property {
+ *  "2yr_mean_citedness": integer,
+ *  "h_index": integer,
+ *  "i10_index": integer} summary_stats
+ * @property {string} updated_date
+ * @property {string} works_api_url
+ * @property {integer} works_count
+ */
+
+
+/**
+ * @typedef {OA_dehydrated_SourceObj} OA_SourceObj
+ */
+
+//------Dehyrdated Objects-----
+//These objects are "thinner" versions of larger objects that are often passed as properties above
+//for sake of convienance it is easier to think of these as Parents
+/**
  * @typedef {object} OA_dehydrated_InstitutionObj
  * @property {string} country_code
  * @property {string} display_name
@@ -213,6 +249,18 @@
  */
 
 
+/**
+ * @typedef {object} OA_dehydrated_ConceptObj
+ * @property {string} display_name
+ * @property {string} id
+ * @property {integer} level
+ * @property {string} wikidata
+ */
 
 
-//filled with objects with keys:values of [institution: OA_dehydrated_InstitutionObj and a "years": array]
+/**
+ * @typedef {object} OA_dehydrated_Author
+ * @property {string} id
+ * @property {string} display_name
+ * @property {stirng} orcid
+ */
