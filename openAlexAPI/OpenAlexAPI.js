@@ -13,12 +13,72 @@ class OpenAlexAPI {
     //https://blog.ourresearch.org/fetch-multiple-dois-in-one-openalex-api-request/ 
     //max 50 w/ single API request
     //author returns must use the open-alex ID associated with the 
+    
+    /**
+     * 
+     * @param {string} doi 
+     * @returns {OA_WorkObject}
+     */
+    async getSingleWorkbyDOI(doi) {
+        let doiURL = OpenAlexAPI.OPEN_ALEX_DOI_URL + doi
+        let resp = await this._queryAPI("GET", "works/"+doiURL)
+        return resp
+    }
 
+    /**
+     * 
+     * @param {array} alexIDArray
+     * @returns {array < OA_WorkObject}
+     */
+    async getMultiWorks(alexIDArray) {
+        let finalProduct = []
+        let miniBuilder = []
+        for (const alexID of alexIDArray) {
+            if (miniBuilder.length === 50) {
+                let pathConjoin = miniBuilder.join("|")
+                let resp = await this._queryAPI("GET", "works?per-page=100&filter=openalex:"+pathConjoin)
+                let results = resp.results
+                finalProduct = finalProduct.concat(results)
+                miniBuilder = []
+            }
+            miniBuilder.push(alexID)
+        }
+
+        if (miniBuilder.length > 0) {
+            let pathConjoin = miniBuilder.join("|")
+            let resp = await this._queryAPI("GET", "works?per-page=100&filter=openalex:"+pathConjoin)
+            let results = resp.results
+            finalProduct = finalProduct.concat(results)
+        }
+
+        return finalProduct
+    }
+
+    /**
+     * 
+     * @param {*} alexID 
+     */
+    async getCites(alexID) {
+        let paramObj = {}
+        paramObj[alexID] = 1
+        paramObj["&cursor="] = "*"
+
+        let fullCites = []
+        let path = "work?per-page=100&filer=cites:"
+
+        let resp = await this._queryAPI("GET", path, paramObj)
+        paramObj["&cursor="] = resp.meta.next_cursor
+        fullCites = fullCites.concat(resp.results)
+
+        while (resp.meta.next_cursor || resp.results.length) {
+            resp = await this._queryAPI("GET", path, paramObj)
+            paramObj["&cursor="] = resp.meta.next_cursor
+            fullCites = fullCites.concat(resp.results)
+        }
+    }
 
     //-------------Static Values-----------------
     static OPEN_ALEX_URL = "https://api.openalex.org/"
-    static OPEN_ALEX_WORKS_URI = "works/"
-    static OPEN_ALEX_AUTHORS_URI = "authors/"
     static OPEN_ALEX_DOI_URL = "https://doi.org/"
 
     
@@ -33,7 +93,7 @@ class OpenAlexAPI {
      */
     async _queryAPI(method, path, params = '') {
         const methodUpper = method.toUpperCase()
-        const fixedPath = OpenAlexAPI.OPEN_ALEX_URL + path
+        let fixedPath = OpenAlexAPI.OPEN_ALEX_URL + path
 
         let payload = {
             "method": methodUpper,
@@ -51,22 +111,35 @@ class OpenAlexAPI {
         }
 
         if (params !== '' && methodUpper == "GET") {
-
+            let pathAdd = ''
+            for (const key in params) {
+                pathAdd += key
+                if (key === "&cursor=") {
+                    pathAdd += params.key     
+                }
+            }
+            fixedPath = fixedPath += pathAdd
+            fixedPath = encodeURI(fixedPath)
         }
 
         const resp = await fetch(fixedPath, payload)
         if (!resp.ok) {
             throw new Error(`API error: ${resp.status} ${resp.statusText}`)
         }
-        return resp
+        return resp.json()
     }
 
-    async _encodeParams(params) {
-        let encodedString = '?'
 
+    /**
+     * 
+     * @param {string} openAlex_URL 
+     * @returns {string} this is JUST the ID# of the openalex ID
+     */
+     _extractOpenAlexID(openAlex_URL) {
+        const regex = /(W\d+)/gm
+        const alexID = openAlex_URL.match(regex)
+        return alexID[0]
     }
 }
 
-module.exports = {
-    OpenAlexAPI,
-}
+module.exports = OpenAlexAPI

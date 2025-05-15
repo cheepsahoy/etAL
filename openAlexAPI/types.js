@@ -215,6 +215,33 @@
 
 /**
  * @typedef {OA_dehydrated_SourceObj} OA_SourceObj
+ * @property {string} abbreviated_title
+ * @property {array} alternate_titles
+ * @property {array} apc_prices
+ * @property {integer} apc_usd
+ * @property {integer} cited_by_count
+ * @property {string} country_code
+ * @property {array < {
+ *  "year": integer,
+ *  "works_count": integer,
+ *  "cited_by_count": integer}} counts_by_year
+ * @property {string} created_date
+ * @property {string} homepage_url
+ * @property {
+ *  "fatcat"?: string,
+ *  "issn"?: array,
+ *  "issn_1"?: string,
+ *  "mag"?: integer,
+ *  "openalex"?: string,
+ *  "wikidata"?: string} ids
+ * @property {array} societies
+ * @property {
+ *  "2yr_mean_citedness": integer,
+ *  "h_index": integer,
+ *  "i10_index": integer} summary_stats
+ * @property {string} updated_date
+ * @property {string} works_api_url
+ * @property {integer} works_count
  */
 
 //------Dehyrdated Objects-----
