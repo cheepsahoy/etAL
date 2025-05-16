@@ -28,7 +28,7 @@ class OpenAlexAPI {
     /**
      * 
      * @param {array} alexIDArray
-     * @returns {array < OA_WorkObject}
+     * @returns {OA_WorkObject[]}
      */
     async getMultiWorks(alexIDArray) {
         let finalProduct = []
@@ -56,7 +56,8 @@ class OpenAlexAPI {
 
     /**
      * 
-     * @param {*} alexID 
+     * @param {*} alexID
+     * @returns {OA_WorkObject[]} 
      */
     async getCites(alexID) {
         let paramObj = {}
@@ -64,17 +65,18 @@ class OpenAlexAPI {
         paramObj["&cursor="] = "*"
 
         let fullCites = []
-        let path = "work?per-page=100&filer=cites:"
+        let path = "works?per-page=100&filter=cites:"
 
         let resp = await this._queryAPI("GET", path, paramObj)
         paramObj["&cursor="] = resp.meta.next_cursor
         fullCites = fullCites.concat(resp.results)
 
-        while (resp.meta.next_cursor || resp.results.length) {
+        while (resp.meta.next_cursor && resp.results.length) {
             resp = await this._queryAPI("GET", path, paramObj)
             paramObj["&cursor="] = resp.meta.next_cursor
             fullCites = fullCites.concat(resp.results)
         }
+        return fullCites
     }
 
     //-------------Static Values-----------------
@@ -115,11 +117,13 @@ class OpenAlexAPI {
             for (const key in params) {
                 pathAdd += key
                 if (key === "&cursor=") {
-                    pathAdd += params.key     
+                    pathAdd += params[key]     
                 }
             }
             fixedPath = fixedPath += pathAdd
+            console.log(fixedPath)
             fixedPath = encodeURI(fixedPath)
+            console.log(fixedPath)
         }
 
         const resp = await fetch(fixedPath, payload)
