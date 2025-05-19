@@ -17,7 +17,7 @@ class OpenAlexAPI {
     /**
      * 
      * @param {string} doi 
-     * @returns {OA_WorkObject}
+     * @returns {Promise<OA_WorkObject}
      */
     async getSingleWorkbyDOI(doi) {
         let doiURL = OpenAlexAPI.OPEN_ALEX_DOI_URL + doi
@@ -28,7 +28,7 @@ class OpenAlexAPI {
     /**
      * 
      * @param {array} alexIDArray
-     * @returns {OA_WorkObject[]}
+     * @returns {Promise<OA_WorkObject[]}
      */
     async getMultiWorks(alexIDArray) {
         let finalProduct = []
@@ -36,7 +36,8 @@ class OpenAlexAPI {
         for (const alexID of alexIDArray) {
             if (miniBuilder.length === 50) {
                 let pathConjoin = miniBuilder.join("|")
-                let resp = await this._queryAPI("GET", "works?per-page=100&filter=openalex:"+pathConjoin)
+                let finalPath = "works?per-page=100&filter=openalex:" + pathConjoin
+                let resp = await this._queryAPI("GET", finalPath)
                 let results = resp.results
                 finalProduct = finalProduct.concat(results)
                 miniBuilder = []
@@ -45,10 +46,12 @@ class OpenAlexAPI {
         }
 
         if (miniBuilder.length > 0) {
-            let pathConjoin = miniBuilder.join("|")
-            let resp = await this._queryAPI("GET", "works?per-page=100&filter=openalex:"+pathConjoin)
-            let results = resp.results
-            finalProduct = finalProduct.concat(results)
+                let pathConjoin = miniBuilder.join("|")
+                let finalPath = "works?per-page=100&filter=openalex:" + pathConjoin
+                let resp = await this._queryAPI("GET", finalPath)
+                let results = resp.results
+                finalProduct = finalProduct.concat(results)
+                miniBuilder = []
         }
 
         return finalProduct
@@ -57,7 +60,7 @@ class OpenAlexAPI {
     /**
      * 
      * @param {*} alexID
-     * @returns {OA_WorkObject[]} 
+     * @returns {Promise<OA_WorkObject[]} 
      */
     async getCites(alexID) {
         let paramObj = {}
@@ -121,9 +124,7 @@ class OpenAlexAPI {
                 }
             }
             fixedPath = fixedPath += pathAdd
-            console.log(fixedPath)
             fixedPath = encodeURI(fixedPath)
-            console.log(fixedPath)
         }
 
         const resp = await fetch(fixedPath, payload)
