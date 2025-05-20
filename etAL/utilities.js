@@ -22,12 +22,14 @@ class etalWrapper {
             "outgoing_cites": {},
             "incoming_cites": {},
             "abstract": "",
-            "centrality_score": 0
+            "centrality_score": 0,
+            "oracle_score": 0
         },
-        this.citations_outgoing = {}
         this._extractAuthorDetails(initialGetCite.authorships, this.centralCitationID, this.citation_conversation)
 
+
         //need to go through outgoing cites, ammend citations_outgoing and citation_conversation
+        this.citations_outgoing = {}
         for (const citationURL of initialGetCite.referenced_works) {
             let alexID = OpenAlexAPI._extractOpenAlexID(citationURL)
             this.citations_outgoing[alexID] = {
@@ -62,13 +64,17 @@ class etalWrapper {
                 "id": artifactID,
                 "title": artifact.title,
                 "pub_date": artifact.publication_date,
-                "source": artifact.primary_location.source.display_name,
+                "source": "",
                 "citation": "",
                 "authors": {},
                 "outgoing_cites": {},
                 "incoming_cites": {},
                 "abstract": "",
-                "centrality_score": 0
+                "centrality_score": 0,
+                "oracle_score": 1
+            }
+            if (artifact.primary_location.source) {
+                this.citation_conversation[artifactID].source = artifact.primary_location.source.display_name
             }
             this._extractAuthorDetails(artifact.authorships, artifactID, this.citation_conversation)
         }
@@ -86,8 +92,13 @@ class etalWrapper {
                     //we identify the artifactID as an INCOMING for the out-going cite,
                     this.citation_conversation[outgoingAlexID].incoming_cites[artifactID] = 1
 
-                    //this increases its centrality score
+                    // increases the out-going cite's centrality score
                     this.citation_conversation[outgoingAlexID].centrality_score += 1
+
+                    //increases the artifact's oracle_score IF the outgoingAlexID isn't the central article (this will identify people IN the conversation even if they aren't cited)
+                    if (outgoingAlexID !== this.centralCitationID) {
+                        this.citation_conversation[artifactID].oracle_score += 1
+                    }
 
                     //if it isn't in the central conversation, then it belongs in outgoing_cites
                 } else if (this.citations_outgoing[outgoingAlexID]) {
@@ -127,7 +138,7 @@ class etalWrapper {
         //reverse ordered
         this.sorted_citations_outgoing.sort((a, b) => b.gravity - a.gravity)
 
-        //same with citation_conversation, we don't exclude centrality_scores of 0 because they are oracles
+        //same with citation_conversation: note, we can also resort this array according to oracle_score!
         const keys_citation_conversation = Object.keys(this.citation_conversation)
         this.sorted_citation_conversation = []
         for (const key of keys_citation_conversation) {
@@ -206,7 +217,7 @@ class etalWrapper {
      */
     _extractAuthorDetails(authorObjList, workID, citation_track) {
         for (const authorObj of authorObjList) {
-            [citation_track][workID].authors[authorObj.author.display_name] = 1
+            citation_track[workID].authors[authorObj.author.display_name] = 1
         }
     }
 

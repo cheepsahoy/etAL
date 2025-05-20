@@ -15,15 +15,27 @@ function writeFile(filepath, data) {
 }
 
 async function run() {
-    const keys_citation_outgoing = Object.keys(citation_outgoing)
-
-    const object_array = []
-    for (const key of keys_citation_outgoing) {
-        citation_outgoing[key].id = key
-        object_array.push(citation_outgoing[key])
+    const keys_citation_conversation = Object.keys(citation_conversation)
+    const sorted_citation_conversation = []
+    for (const key of keys_citation_conversation) {
+        sorted_citation_conversation.push(citation_conversation[key])
     }
-    object_array.sort((a, b) => b.gravity - a.gravity)
-    console.log(object_array[100])
+    sorted_citation_conversation.sort((a, b) => b.oracle_score - a.oracle_score)
+    console.log(sorted_citation_conversation[6])
+    /*
+    const OpenAlexAPI = new OpenAlex(process.env.OPEN_ALEX_EMAIL)
+    const etALAPI = new etAl()
+
+    const originEssay = await OpenAlexAPI.getSingleWorkbyDOI("10.1080/00335638009383499")
+
+    etALAPI.initialize(originEssay)
+    await etALAPI.populateConversation()
+
+    const citationConversation = JSON.stringify(etALAPI.citation_conversation, null, 2)
+    const citationOutgoing = JSON.stringify(etALAPI.citations_outgoing, null, 2)
+    writeFile('./testdata_citation_conversation.json', citationConversation)
+    writeFile('./testdata_citation_outgoing.json', citationOutgoing)
+    */
 }
 run().then().catch()
 

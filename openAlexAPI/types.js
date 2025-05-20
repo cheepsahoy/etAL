@@ -12,6 +12,7 @@
  * @property {object} incoming_cites
  * @property {string} abstract
  * @property {number} centrality_score
+ * @property {number} oracle_score
  */
 
 /**
