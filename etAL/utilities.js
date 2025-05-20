@@ -48,7 +48,6 @@ class etalWrapper {
     }
     
     /**
-     * 
      * @param {string} centralConversation OpenAlexID 
      * @returns {Promise}
      */
@@ -116,19 +115,19 @@ class etalWrapper {
                 }
             }
         }
-        //Now we create a sorted array for citation_outgoing using 'gravity' as a measurement, we save it to the instance
+        //save an array sorted for 'gravity' as citation_outgoing' 
         const keys_citation_outgoing = Object.keys(this.citations_outgoing)
         this.sorted_citations_outgoing = []
         for (const key of keys_citation_outgoing) {
-            //because this array is going to represent 'agreement' in terms of citation_outgoing, we don't want to include any citations with a gravity of 1
+            // we don't want to include any citations with a gravity of 1 bc they are have no siblings
             if (this.citations_outgoing[key].gravity > 1) {
                 this.sorted_citations_outgoing.push(this.citations_outgoing[key])
             }
         }
-        //now we sort the array in reverse order
+        //reverse ordered
         this.sorted_citations_outgoing.sort((a, b) => b.gravity - a.gravity)
 
-        //we do the same with citation_conversation
+        //same with citation_conversation, we don't exclude centrality_scores of 0 because they are oracles
         const keys_citation_conversation = Object.keys(this.citation_conversation)
         this.sorted_citation_conversation = []
         for (const key of keys_citation_conversation) {
@@ -138,37 +137,32 @@ class etalWrapper {
     }
 
     /**
-     * @param {Array} alexIDArray 
+     * @param {array<etAL_Outgoing_Cite} slidingWindow 
      */
     async identifyOutgoingCitations(slidingWindow) {
         //this should be dynamic. rather then get 'outgoing citations' for the thousands of outgoing citations there will be a sliding window on that sorted array and when the user reaches the end of it we will call this function
+        //this is a WIP
     }
 
     /**
-     * 
      * @param {etAL_Conversation_Cite} etAlCitation
-     * @returns {array<etAL_Conversation_Cite} 
+     * @returns {object} 
      */
     async sharedOutgoing(etAlCitation) {
-        //this function will look at a single author's reference page and highlight all other 'in-conversation' essays that share its 'outgoing' citations
+        //input = one work's reference page, output = all works that share 
 
         const comparedID = etAlCitation.id
-        const compareOutgoing = Object.kesys(etAlCitation.outgoing_cites)
 
-        const identiifer = []
+        //populate information for all 'out-going'
+        const outgoingArray = this._convertOutgoingToCitationArray(etAlCitation)
+        this._identifyOutgoing(outgoingArray)
 
-        for (const outgoing_cite of etAlCitation.outgoing_cites) {
-            if (this.citations_outgoing[outgoing_cite].title) {
-                continue
-            }
-            const 
-        }
+        //Then ?????? - this is a WIP
     }
 
     //-----------Utilities--------------
 
     /**
-     * 
      * @param {array<etAL_Outgoing_Cite} citationArray 
      */
     async _identifyOutgoing(citationArray) {
@@ -193,7 +187,6 @@ class etalWrapper {
     }
 
     /**
-     * 
      * @param {etAL_Conversation_Cite} conversation_citation 
      * @returns {array<etAL_Outgoing_Cite}
      */
@@ -207,7 +200,6 @@ class etalWrapper {
     }
 
     /**
-     * 
      * @param {array<OA_AuthorshipObj} authorObjList 
      * @param {string} workID
      * @param {object} citation_track
