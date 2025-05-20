@@ -3,15 +3,18 @@ const OpenAlex = require('../openAlexAPI/OpenAlexAPI')
 const OpenAlexAPI = new OpenAlex(process.env.OPEN_ALEX_EMAIL)
 
 class etalWrapper {
+    constructor() {}
+
     /**
      * @param {OA_WorkObject} initialGetCite
      */
-    constructor(initialGetCite) {
+    initialize(initialGetCite) {
         this.centralCitationID = OpenAlexAPI._extractOpenAlexID(initialGetCite.id)
         this.citation_conversation = {}
         this.citation_conversation[this.centralCitationID] = {
             "doi": initialGetCite.doi,
             "id": this.centralCitationID,
+            "source": initialGetCite.primary_location.source.display_name,
             "title": initialGetCite.title,
             "pub_date": initialGetCite.publication_date,
             "citation": "",
@@ -22,10 +25,8 @@ class etalWrapper {
             "centrality_score": 0
         },
         this.citations_outgoing = {}
-        //need to go through authorship object and extract
-        for (const authorObj of initialGetCite.authorships) {
-            this.citation_conversation[this.centralCitationID].authors[authorObj.author.display_name] = 1
-        }
+        this._extractAuthorDetails(initialGetCite.authorships, this.centralCitationID, this.citation_conversation)
+
         //need to go through outgoing cites, ammend citations_outgoing and citation_conversation
         for (const citationURL of initialGetCite.referenced_works) {
             let alexID = OpenAlexAPI._extractOpenAlexID(citationURL)
@@ -62,6 +63,7 @@ class etalWrapper {
                 "id": artifactID,
                 "title": artifact.title,
                 "pub_date": artifact.publication_date,
+                "source": artifact.primary_location.source.display_name,
                 "citation": "",
                 "authors": {},
                 "outgoing_cites": {},
@@ -69,10 +71,7 @@ class etalWrapper {
                 "abstract": "",
                 "centrality_score": 0
             }
-            //we need to extract the authors and assign their values to the conversation entry
-            for (const authorObj of artifact.authorships) {
-                this.citation_conversation[artifactID].authors[authorObj.author.display_name] = 1
-            }
+            this._extractAuthorDetails(artifact.authorships, artifactID, this.citation_conversation)
         }
         //After this initial pass, we need to go over the list again and, using their outgoing citations, establish webs of connections [who cites who?]
         for (const artifact of conversationalists) {
@@ -102,6 +101,7 @@ class etalWrapper {
                     this.citations_outgoing[outgoingAlexID] = {
                         "doi": "",
                         "id": outgoingAlexID,
+                        "source": "",
                         "title": "",
                         "pub_date": "",
                         "citation": "",
@@ -120,33 +120,102 @@ class etalWrapper {
         const keys_citation_outgoing = Object.keys(this.citations_outgoing)
         this.sorted_citations_outgoing = []
         for (const key of keys_citation_outgoing) {
-            sorted_citations_outgoing.push(this.citations_outgoing[key])
+            //because this array is going to represent 'agreement' in terms of citation_outgoing, we don't want to include any citations with a gravity of 1
+            if (this.citations_outgoing[key].gravity > 1) {
+                this.sorted_citations_outgoing.push(this.citations_outgoing[key])
+            }
         }
+        //now we sort the array in reverse order
         this.sorted_citations_outgoing.sort((a, b) => b.gravity - a.gravity)
+
+        //we do the same with citation_conversation
+        const keys_citation_conversation = Object.keys(this.citation_conversation)
+        this.sorted_citation_conversation = []
+        for (const key of keys_citation_conversation) {
+            this.sorted_citation_conversation.push(this.citation_conversation[key])
+        }
+        this.sorted_citation_conversation.sort((a, b) => b.centrality_score - a.centrality_score)
     }
 
-    async identifyOutgoingCitations() {
-        //this should be dynamic, the use will 'click through' increasing order to find the most common out-going citations
-        const outgoingCitationArray = []
-        for (const alexID in this.citations_outgoing) {
-            outgoingCitationArray.push(alexID)
+    /**
+     * @param {Array} alexIDArray 
+     */
+    async identifyOutgoingCitations(slidingWindow) {
+        //this should be dynamic. rather then get 'outgoing citations' for the thousands of outgoing citations there will be a sliding window on that sorted array and when the user reaches the end of it we will call this function
+    }
+
+    /**
+     * 
+     * @param {etAL_Conversation_Cite} etAlCitation
+     * @returns {array<etAL_Conversation_Cite} 
+     */
+    async sharedOutgoing(etAlCitation) {
+        //this function will look at a single author's reference page and highlight all other 'in-conversation' essays that share its 'outgoing' citations
+
+        const comparedID = etAlCitation.id
+        const compareOutgoing = Object.kesys(etAlCitation.outgoing_cites)
+
+        const identiifer = []
+
+        for (const outgoing_cite of etAlCitation.outgoing_cites) {
+            if (this.citations_outgoing[outgoing_cite].title) {
+                continue
+            }
+            const 
+        }
+    }
+
+    //-----------Utilities--------------
+
+    /**
+     * 
+     * @param {array<etAL_Outgoing_Cite} citationArray 
+     */
+    async _identifyOutgoing(citationArray) {
+        const unidentifiedCites = []
+        for (const cite of citationArray) {
+            if (cite.title) {
+                continue
+            }
+            unidentifiedCites.push(cite.id)
         }
 
-        const identifiedCitations = await OpenAlexAPI.getMultiWorks(outgoingCitationArray)
+        const identifiedCitations = await OpenAlexAPI.getMultiWorks(unidentifiedCites)
+
         for (const citation of identifiedCitations) {
             const alexID = OpenAlexAPI._extractOpenAlexID(citation.id)
             this.citations_outgoing[alexID].doi = citation.doi
+            this.citations_outgoing[alexID].source = citation.primary_location.source.display_name
             this.citations_outgoing[alexID].title = citation.title
             this.citations_outgoing[alexID].pub_date = citation.publication_date
-            //extract author data
-            for (const authorObj of citation.authorships) {
-                this.citations_outgoing[alexID].authors[authorObj.author.display_name] = 1
-            }
+            this._extractAuthorDetails(citation.authorships, alexID, this.citations_outgoing)
         }
     }
 
-    async compareOutgoing() {
-        //this function will look at a single author's reference page and highlight all other 'in-conversation' essays that share its 'outgoing' citations
+    /**
+     * 
+     * @param {etAL_Conversation_Cite} conversation_citation 
+     * @returns {array<etAL_Outgoing_Cite}
+     */
+    _convertOutgoingToCitationArray(conversation_citation) {
+        const outgoingArray = []
+        const outgoingKeys = Object.keys(conversation_citation.outgoing_cites)
+        for (const key of outgoingKeys) {
+            outgoingArray.push(this.citations_outgoing[key])
+        }
+        return outgoingArray
+    }
+
+    /**
+     * 
+     * @param {array<OA_AuthorshipObj} authorObjList 
+     * @param {string} workID
+     * @param {object} citation_track
+     */
+    _extractAuthorDetails(authorObjList, workID, citation_track) {
+        for (const authorObj of authorObjList) {
+            [citation_track][workID].authors[authorObj.author.display_name] = 1
+        }
     }
 
 }

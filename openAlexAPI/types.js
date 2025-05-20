@@ -1,8 +1,42 @@
+//-----Et Al Wrapper-----
+/**
+ * @typedef {object} etAL_Conversation_Cite
+ * @property {string} doi
+ * @property {string} id
+ * @property {string} title
+ * @property {string} pub_date
+ * @property {string} source
+ * @property {string} citation
+ * @property {object} authors
+ * @property {object} outgoing_cites
+ * @property {object} incoming_cites
+ * @property {string} abstract
+ * @property {number} centrality_score
+ */
+
+/**
+ * @typedef {object} etAL_Outgoing_Cite
+ * @property {string} doi
+ * @property {string} id
+ * @property {string} title
+ * @property {string} pub_date
+ * @property {string} source
+ * @property {string} citation
+ * @property {object} authors
+ * @property {object} outgoing_cites
+ * @property {object} incoming_cites
+ * @property {string} abstract
+ * @property {number} gravity
+ * 
+ */
+
+
+//-----OpenAlexAPI-----
 /**
  * @typedef {object} OA_WorkObject
  * @property {object} abstract_inverted_index
  * Each word is key, value is its word# in the abstract
- * @property {OA_AuthorshipObj} authorships
+ * @property {array<OA_AuthorshipObj} authorships
  * @property {object} apc_list
  * @property {{
  *  'value': integer,
@@ -111,7 +145,11 @@
 /**
  * @typedef {object} OA_AuthorshipObj
  * @property {array} affiliations
- * @property {string} author
+ * @property {{
+ * 'id': string,
+ * 'display_name': string,
+ * 'orcid': 'string'
+ * }} author
  * @property {string} author_position
  * @property {array} countries
  * @property {array} institutions

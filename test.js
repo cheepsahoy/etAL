@@ -15,15 +15,15 @@ function writeFile(filepath, data) {
 }
 
 async function run() {
-    const keys_conversation_array = Object.keys(citation_conversation)
+    const keys_citation_outgoing = Object.keys(citation_outgoing)
 
     const object_array = []
-    for (const key of keys_conversation_array) {
-        citation_conversation[key].id = key
-        object_array.push(citation_conversation[key])
+    for (const key of keys_citation_outgoing) {
+        citation_outgoing[key].id = key
+        object_array.push(citation_outgoing[key])
     }
-    object_array.sort((a, b) => b.centrality_score - a.centrality_score)
-    console.log(object_array[6])
+    object_array.sort((a, b) => b.gravity - a.gravity)
+    console.log(object_array[100])
 }
 run().then().catch()
 
