@@ -42,7 +42,7 @@ class etalWrapper {
                 "outgoing_cites": {},
                 "incoming_cites": {},
                 "abstract": "",
-                "gravity": 1,
+                "gravity_score": 1,
             }
             this.citations_outgoing[alexID].incoming_cites[this.centralCitationID] = 1
             this.citation_conversation[this.centralCitationID].outgoing_cites[alexID] = 1
@@ -76,7 +76,11 @@ class etalWrapper {
             if (artifact.primary_location.source) {
                 this.citation_conversation[artifactID].source = artifact.primary_location.source.display_name
             }
-            this._extractAuthorDetails(artifact.authorships, artifactID, this.citation_conversation)
+            this._extractAuthorDetails(
+                artifact.authorships, 
+                artifactID, 
+                this.citation_conversation
+            )
         }
         //After this initial pass, we need to go over the list again and, using their outgoing citations, establish webs of connections [who cites who?]
         for (const artifact of conversationalists) {
@@ -103,7 +107,7 @@ class etalWrapper {
                     //if it isn't in the central conversation, then it belongs in outgoing_cites
                 } else if (this.citations_outgoing[outgoingAlexID]) {
                     //if it already exists, we increase its gravity and ammend its incoming cites
-                    this.citations_outgoing[outgoingAlexID].gravity += 1
+                    this.citations_outgoing[outgoingAlexID].gravity_score += 1
 
                     this.citations_outgoing[outgoingAlexID].incoming_cites[artifactID] = 1
                 } else {
@@ -121,7 +125,7 @@ class etalWrapper {
                             [artifactID]: 1,
                         },
                         "abstract": "",
-                        "gravity": 1,
+                        "gravity_score": 1,
                     }
                 }
             }
@@ -131,12 +135,12 @@ class etalWrapper {
         this.sorted_citations_outgoing = []
         for (const key of keys_citation_outgoing) {
             // we don't want to include any citations with a gravity of 1 bc they are have no siblings
-            if (this.citations_outgoing[key].gravity > 1) {
+            if (this.citations_outgoing[key].gravity_score > 1) {
                 this.sorted_citations_outgoing.push(this.citations_outgoing[key])
             }
         }
         //reverse ordered
-        this.sorted_citations_outgoing.sort((a, b) => b.gravity - a.gravity)
+        this.sorted_citations_outgoing.sort((a, b) => b.gravity_score - a.gravity_score)
 
         //same with citation_conversation: note, we can also resort this array according to oracle_score!
         const keys_citation_conversation = Object.keys(this.citation_conversation)
