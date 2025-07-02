@@ -1,6 +1,7 @@
-require('dotenv').config()
-const OpenAlex = require('../openAlexAPI/OpenAlexAPI')
-const OpenAlexAPI = new OpenAlex(process.env.OPEN_ALEX_EMAIL)
+import 'dotenv/config'
+import openAlexAPI from '../openAlexAPI/OpenAlexAPI'
+
+const OpenAlexAPI = new openAlexAPI(process.env.OPEN_ALEX_EMAIL)
 
 class etalWrapper {
     constructor() {}
@@ -221,4 +222,4 @@ class etalWrapper {
     }
 }
 
-module.exports = etalWrapper
+export default etalWrapper

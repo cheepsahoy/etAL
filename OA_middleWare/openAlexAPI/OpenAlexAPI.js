@@ -143,4 +143,4 @@ class OpenAlexAPI {
     }
 }
 
-module.exports = OpenAlexAPI
+export default OpenAlexAPI

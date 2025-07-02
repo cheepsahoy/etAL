@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     semi: false,
     bracketSpacing: false,
     jsxBracketSameLine: true,
