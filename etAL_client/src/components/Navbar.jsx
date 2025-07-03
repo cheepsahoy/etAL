@@ -29,7 +29,7 @@ function Navbar() {
         </div>
       </div>
       <div className="searchBar">
-        <input type="text" placeholder="Search by DOI, Article, or Author" />
+        <input type="text" placeholder="Search by Article Title" />
         <button>Submit</button>
       </div>
     </header>

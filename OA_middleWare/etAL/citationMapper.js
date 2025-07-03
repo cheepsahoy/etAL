@@ -1,9 +1,13 @@
-import 'dotenv/config'
-import openAlexAPI from '../openAlexAPI/OpenAlexAPI'
+import dotenv from 'dotenv'
+dotenv.config({
+    path: '../../.env',
+})
 
-const OpenAlexAPI = new openAlexAPI(process.env.OPEN_ALEX_EMAIL)
+import OA_API from '../openAlexAPI/OpenAlexAPI.js'
 
-class etalWrapper {
+const OpenAlexAPI = new OA_API(process.env.OPEN_ALEX_EMAIL)
+
+class etalCitationMapper {
     constructor() {}
 
     /**
@@ -222,4 +226,4 @@ class etalWrapper {
     }
 }
 
-export default etalWrapper
+export default etalCitationMapper

@@ -28,11 +28,22 @@
  * @property {object} incoming_cites
  * @property {string} abstract
  * @property {number} gravity
- * 
+ *
  */
 
-
 //-----OpenAlexAPI-----
+
+/**
+ * @typedef {object} OA_WorkSearch
+ * @property {{
+ * 'count': integer,
+ * 'db_response_time_ms': integer,
+ * 'page': integer || null,
+ * 'per_page': integer,
+ * 'next_cursor'?: string
+ * }} meta
+ * @property {array<OA_WorkObject} results
+ */
 /**
  * @typedef {object} OA_WorkObject
  * @property {object} abstract_inverted_index
@@ -133,7 +144,6 @@
  * @property {string} updated_date
  */
 
-
 /**
  * @typedef {object} OA_OpenAccessObj
  * @property {boolean} any_repository_has_fulltext
@@ -141,7 +151,6 @@
  * @property {string} oa_status
  * @property {string} oa_url
  */
-
 
 /**
  * @typedef {object} OA_AuthorshipObj
@@ -166,7 +175,6 @@
  * @property {string} raw_author_name
  */
 
-
 /**
  * @typedef {object} OA_LocationObj
  * @property {boolean} is_accepted
@@ -185,7 +193,6 @@
  * @property {string} version
  * 3 versions possible: publishedVersion || acceptedVersion || submittedVersion
  */
-
 
 /**
  * @typedef {OA_dehydrated_InstitutionObj} OA_InstitutionObj
@@ -222,7 +229,6 @@
  * @property {array < } repositories
  */
 
-
 /**
  * @typedef {OA_dehydrated_Author} OA_AuthorObj
  * @property {array < {
@@ -250,7 +256,6 @@
  * @property {string} works_api_url
  * @property {integer} works_count
  */
-
 
 /**
  * @typedef {OA_dehydrated_SourceObj} OA_SourceObj
@@ -297,7 +302,6 @@
  * //Possible values: education || healthcare || company || archive || nonprofit || government || facility || other
  */
 
-
 /**
  * @typedef {object} OA_dehydrated_SourceObj
  * @property {string} display_name
@@ -314,7 +318,6 @@
  * //Possible values: journal || repository || conference || ebook platform|| book series || metadata || other
  */
 
-
 /**
  * @typedef {object} OA_dehydrated_ConceptObj
  * @property {string} display_name
@@ -322,7 +325,6 @@
  * @property {integer} level
  * @property {string} wikidata
  */
-
 
 /**
  * @typedef {object} OA_dehydrated_Author

@@ -1,4 +1,4 @@
-class OpenAlexAPI {
+class OA_API {
     #api_email
     #api_token
 
@@ -15,11 +15,35 @@ class OpenAlexAPI {
 
     /**
      *
+     * @param {string} searchQuerry
+     * @returns {Promise<OA_WorkSearch}
+     */
+    async simpleSearchByName(searchQuerry) {
+        let searchPath = 'works?search='
+        let lowerSearch = searchQuerry.toLowerCase()
+        let searchParam = encodeURI(lowerSearch)
+
+        let resp = await this._queryAPI('GET', searchPath + searchParam)
+        return resp
+    }
+
+    async deepSearchByQuerry(searchQuerry, page = 1) {
+        let initialPatth = 'works?search='
+        let lowerSearch = searchQuerry.toLowerCase()
+        let encodedSearch = encodeURI(lowerSearch)
+        let finalPath = initialPatth + encodedSearch + '&per-page=100&page=' + page
+
+        const resp = await this._queryAPI('GET', finalPath)
+        return resp
+    }
+
+    /**
+     *
      * @param {string} doi
      * @returns {Promise<OA_WorkObject}
      */
     async getSingleWorkbyDOI(doi) {
-        let doiURL = OpenAlexAPI.OPEN_ALEX_DOI_URL + doi
+        let doiURL = OA_API.OPEN_ALEX_DOI_URL + doi
         let resp = await this._queryAPI('GET', 'works/' + doiURL)
         return resp
     }
@@ -95,7 +119,7 @@ class OpenAlexAPI {
      */
     async _queryAPI(method, path, params = '') {
         const methodUpper = method.toUpperCase()
-        let fixedPath = OpenAlexAPI.OPEN_ALEX_URL + path
+        let fixedPath = OA_API.OPEN_ALEX_URL + path
 
         let payload = {
             method: methodUpper,
@@ -143,4 +167,4 @@ class OpenAlexAPI {
     }
 }
 
-export default OpenAlexAPI
+export default OA_API
