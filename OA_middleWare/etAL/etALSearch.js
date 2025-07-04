@@ -1,10 +1,6 @@
 import OA_API from '../openAlexAPI/OpenAlexAPI'
-import dotenv from 'dotenv'
-dotenv.config({
-    path: '../../.env',
-})
 
-const OpenAlexAPI = new OA_API(process.env.OPEN_ALEX_EMAIL)
+const OpenAlexAPI = new OA_API('')
 
 class deepSearchManager {
     constructor(initial) {
@@ -35,11 +31,18 @@ class deepSearchManager {
     }
 }
 
-const autoComplete = async function (input) {
+async function autoComplete(input) {
     return await OpenAlexAPI.simpleSearchByName(input)
+}
+
+function _extractOpenAlexID(openAlex_URL) {
+    const regex = /(W\d+)/gm
+    const alexID = openAlex_URL.match(regex)
+    return alexID[0]
 }
 
 export default {
     autoComplete,
+    _extractOpenAlexID,
     deepSearchManager,
 }

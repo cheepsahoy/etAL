@@ -1,4 +1,5 @@
 import { ChartNetwork } from "lucide-react";
+import SearchBar from "./searchFunctions/SearchBar";
 import { useEffect, useRef } from "react";
 
 function Navbar() {
@@ -28,10 +29,7 @@ function Navbar() {
           <button>Login</button>
         </div>
       </div>
-      <div className="searchBar">
-        <input type="text" placeholder="Search by Article Title" />
-        <button>Submit</button>
-      </div>
+      <SearchBar />
     </header>
   );
 }
