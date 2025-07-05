@@ -1,26 +1,11 @@
 import etALSearch from "../../../../OA_middleWare/etAL/etALSearch";
 import SuggestionList from "./SuggestionList";
-import { useEffect, useState } from "react";
-
-function debounceAsync(fn, delay = 1000) {
-  let timeout;
-  return (...args) =>
-    new Promise((resolve) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(async () => {
-        const result = await fn(...args);
-        resolve(result);
-      }, delay);
-    });
-}
-
-const testQuerry = debounceAsync((text) => {
-  console.log(text);
-});
+import { useState } from "react";
+import utils from "../../frontEndUtils/utils";
 
 function SearchBar() {
   const [searchResults, SetSearchResults] = useState({ results: [] });
-  const debounceAutoComplete = debounceAsync(etALSearch.autoComplete);
+  const debounceAutoComplete = utils.debounceAsync(etALSearch.autoComplete);
 
   async function searchHandle(input) {
     let inputValue = input.target.value;

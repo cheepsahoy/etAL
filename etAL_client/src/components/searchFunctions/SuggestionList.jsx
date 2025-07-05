@@ -1,35 +1,44 @@
 import CitationCard from "./CitationCard";
 import etALSearch from "../../../../OA_middleWare/etAL/etALSearch";
 
-function SuggestionList({ object }) {
-  let extractedArray = [];
-  let suggestionArray = [];
+function arrayExtract(object) {
+  let smallerArray = [];
+  if (object.results.length === 0) {
+    return object.results;
+  }
   if (object.results.length >= 5) {
-    suggestionArray = object.results.slice(0, 5);
+    smallerArray = object.results.slice(0, 5);
   } else {
-    suggestionArray = object.results;
+    smallerArray = object.results;
   }
 
-  if (suggestionArray.length !== 0) {
-    for (const item of suggestionArray) {
-      let template = {};
-      template.title = item.title;
-      template.doi = item.doi || "Unknown";
-      template.pubDate = item.publication_date;
-      template.source = item.primary_location.source
-        ? item.primary_location.source.display_name
-        : "";
-      template.id = etALSearch._extractOpenAlexID(item.id);
-      template.author = "";
+  let finalArray = [];
+  for (const item of smallerArray) {
+    let template = {};
+    template.title = item.title;
+    template.doi = item.doi ? item.doi : "No DOI found";
+    template.pubDate = item.publication_date
+      ? item.publication_date
+      : "No publication date found.";
+    template.source = item.primary_location.source
+      ? item.primary_location.source.display_name
+      : "No source found";
+    template.id = etALSearch._extractOpenAlexID(item.id);
+    template.author = "";
 
-      for (const authorObj of item.authorships) {
-        template.author += `${authorObj.author.display_name}, `;
-      }
-      const fixedName = template.author.slice(0, -2);
-      template.author = fixedName;
-      extractedArray.push(template);
+    for (const authorObj of item.authorships) {
+      template.author += `${authorObj.author.display_name}, `;
     }
-  } else {
+    const fixedName = template.author.slice(0, -2);
+    template.author = fixedName;
+    finalArray.push(template);
+  }
+  return finalArray;
+}
+
+function SuggestionList({ object }) {
+  const renderData = arrayExtract(object);
+  if (renderData.length === 0) {
     return (
       <ul>
         <li key={"loading"}>Waiting for Querry...</li>
@@ -39,7 +48,7 @@ function SuggestionList({ object }) {
 
   return (
     <ul>
-      {extractedArray.map((citation) => (
+      {renderData.map((citation) => (
         <li key={citation.id}>
           <CitationCard
             title={citation.title}
