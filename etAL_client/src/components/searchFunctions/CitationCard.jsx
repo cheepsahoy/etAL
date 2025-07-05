@@ -21,7 +21,7 @@ function CitationCard({ title, author, doi, pubDate, source, id }) {
           {author}
         </p>
         <p style={{ marginTop: "5px", marginBottom: "0" }}>
-          {pubDate}, {source}, DOI: {doi}
+          {pubDate}, {source}, {doi}
         </p>
       </div>
       <button>Choose me!</button>

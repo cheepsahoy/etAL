@@ -15,14 +15,11 @@ function arrayExtract(object) {
   let finalArray = [];
   for (const item of smallerArray) {
     let template = {};
-    template.title = item.title;
-    template.doi = item.doi ? item.doi : "No DOI found";
-    template.pubDate = item.publication_date
-      ? item.publication_date
-      : "No publication date found.";
-    template.source = item.primary_location.source
-      ? item.primary_location.source.display_name
-      : "No source found";
+    template.title = item.title ?? "No title found";
+    template.doi = item.doi ?? "No DOI found";
+    template.pubDate = item.publication_date ?? "No publication date found.";
+    template.source =
+      item?.primary_location?.source?.display_name ?? "No source found";
     template.id = etALSearch._extractOpenAlexID(item.id);
     template.author = "";
 
