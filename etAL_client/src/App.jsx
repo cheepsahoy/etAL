@@ -1,7 +1,9 @@
 import Navbar from "./components/Navbar";
-import CitationCard from "./components/searchFunctions/CitationCard";
+import VisualizerSpace from "./components/Visualizer";
+import { useState, useRef } from "react";
 
 function App() {
+  const [visualizer, setVisualizer] = useState({ placeholder: true });
   return (
     <div
       style={{
@@ -12,6 +14,7 @@ function App() {
       }}
     >
       <Navbar />
+      <VisualizerSpace etALObject={visualizer} />
     </div>
   );
 }

@@ -69,3 +69,12 @@ body {
   margin: 2px;
   border-radius: 8px;
 }
+
+/*
+--The Visualizer Space---
+*/
+.visualizer {
+  border: black;
+  border-style: dotted;
+  border-radius: 10px;
+}

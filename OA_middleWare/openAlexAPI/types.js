@@ -9,6 +9,7 @@
  * @property {string} citation
  * @property {object} authors
  * @property {object} outgoing_cites
+ * @property {object} outgoing_cites_internal
  * @property {object} incoming_cites
  * @property {string} abstract
  * @property {number} centrality_score
@@ -25,6 +26,7 @@
  * @property {string} citation
  * @property {object} authors
  * @property {object} outgoing_cites
+ * @property {object} outgoing_cites_internal
  * @property {object} incoming_cites
  * @property {string} abstract
  * @property {number} gravity

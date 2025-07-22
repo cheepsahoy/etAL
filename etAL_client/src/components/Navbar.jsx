@@ -1,6 +1,5 @@
 import { ChartNetwork } from "lucide-react";
 import SearchBar from "./searchFunctions/SearchBar";
-import { useEffect, useRef } from "react";
 
 function Navbar() {
   return (

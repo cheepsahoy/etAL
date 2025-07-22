@@ -1,11 +1,6 @@
-import dotenv from 'dotenv'
-dotenv.config({
-    path: '../../.env',
-})
-
 import OA_API from '../openAlexAPI/OpenAlexAPI.js'
 
-const OpenAlexAPI = new OA_API(process.env.OPEN_ALEX_EMAIL)
+const OpenAlexAPI = new OA_API('')
 
 class etalCitationMapper {
     constructor() {}
@@ -17,14 +12,15 @@ class etalCitationMapper {
         this.centralCitationID = OpenAlexAPI._extractOpenAlexID(initialGetCite.id)
         this.citation_conversation = {}
         ;(this.citation_conversation[this.centralCitationID] = {
-            doi: initialGetCite.doi,
+            doi: initialGetCite.doi ?? 'No DOI on record',
             id: this.centralCitationID,
-            source: initialGetCite.primary_location.source.display_name,
-            title: initialGetCite.title,
-            pub_date: initialGetCite.publication_date,
+            source: initialGetCite.primary_location?.source?.display_name ?? 'No primary source on record',
+            title: initialGetCite.title ?? 'No primary title on record',
+            pub_date: initialGetCite.publication_date ?? 'No publication date on record',
             citation: '',
             authors: {},
             outgoing_cites: {},
+            outgoing_cites_internal: {},
             incoming_cites: {},
             abstract: '',
             centrality_score: 0,
@@ -36,6 +32,10 @@ class etalCitationMapper {
         this.citations_outgoing = {}
         for (const citationURL of initialGetCite.referenced_works) {
             let alexID = OpenAlexAPI._extractOpenAlexID(citationURL)
+            //we have found some referenced_works are recursive
+            if (alexID === this.centralCitationID) {
+                continue
+            }
             this.citations_outgoing[alexID] = {
                 doi: '',
                 id: alexID,
@@ -44,6 +44,7 @@ class etalCitationMapper {
                 citation: '',
                 authors: {},
                 outgoing_cites: {},
+                outgoing_cites_internal: {},
                 incoming_cites: {},
                 abstract: '',
                 gravity_score: 1,
@@ -64,11 +65,11 @@ class etalCitationMapper {
         for (const artifact of conversationalists) {
             let artifactID = OpenAlexAPI._extractOpenAlexID(artifact.id)
             this.citation_conversation[artifactID] = {
-                doi: artifact.doi,
+                doi: artifact.doi ?? 'No DOI on record.',
                 id: artifactID,
-                title: artifact.title,
-                pub_date: artifact.publication_date,
-                source: '',
+                title: artifact.title ?? 'No primary title on record',
+                pub_date: artifact.publication_date ?? 'No publication date on record',
+                source: artifact.primary_location?.source?.display_name ?? 'No primary source on record',
                 citation: '',
                 authors: {},
                 outgoing_cites: {},
@@ -76,9 +77,6 @@ class etalCitationMapper {
                 abstract: '',
                 centrality_score: 0,
                 oracle_score: 1,
-            }
-            if (artifact.primary_location.source) {
-                this.citation_conversation[artifactID].source = artifact.primary_location.source.display_name
             }
             this._extractAuthorDetails(artifact.authorships, artifactID, this.citation_conversation)
         }
@@ -88,11 +86,18 @@ class etalCitationMapper {
             for (const workURL of artifact.referenced_works) {
                 const outgoingAlexID = OpenAlexAPI._extractOpenAlexID(workURL)
 
+                //check for redundancy
+                if (outgoingAlexID === artifactID) {
+                    continue
+                }
+
                 //first: identify this as 'outgoing' for the initial artifact
                 this.citation_conversation[artifactID].outgoing_cites[outgoingAlexID] = 1
 
                 //Now we check to see if the out-going cite is part of the origional get-cite
                 if (this.citation_conversation[outgoingAlexID]) {
+                    //mark it as outgoing_internal
+                    this.citation_conversation[artifactID].outgoing_cites_internal[outgoingAlexID] = 1
                     //we identify the artifactID as an INCOMING for the out-going cite,
                     this.citation_conversation[outgoingAlexID].incoming_cites[artifactID] = 1
 
@@ -106,7 +111,7 @@ class etalCitationMapper {
 
                     //if it isn't in the central conversation, then it belongs in outgoing_cites
                 } else if (this.citations_outgoing[outgoingAlexID]) {
-                    //if it already exists, we increase its gravity and ammend its incoming citess
+                    //if it already exists, we increase its gravity and ammend its incoming cites
                     this.citations_outgoing[outgoingAlexID].gravity_score += 1
 
                     this.citations_outgoing[outgoingAlexID].incoming_cites[artifactID] = 1
@@ -121,6 +126,7 @@ class etalCitationMapper {
                         citation: '',
                         authors: {},
                         outgoing_cites: {},
+                        outgoing_cites_internal: {},
                         incoming_cites: {
                             [artifactID]: 1,
                         },
@@ -130,6 +136,7 @@ class etalCitationMapper {
                 }
             }
         }
+
         //save an array sorted for 'gravity' as citation_outgoing'
         const keys_citation_outgoing = Object.keys(this.citations_outgoing)
         this.sorted_citations_outgoing = []
