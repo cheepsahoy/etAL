@@ -1,17 +1,14 @@
 import * as d3 from "d3";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 
 function nodeAndLinkMaker(data) {
   const uniqueIDs = data.sorted_citation_conversation;
   const nodes = [];
-  for (const id of uniqueIDs) {
-    const template = { ...data[id] };
-    nodes.push(template);
-  }
-
   const links = [];
   for (const id of uniqueIDs) {
-    const outgoingIDs = Object.keys(data[id].outgoing_cites_internal);
+    nodes.push(id);
+
+    const outgoingIDs = Object.keys(id.outgoing_cites_internal);
     for (const outgoingCite of outgoingIDs) {
       const template = {
         source: id,
@@ -25,12 +22,39 @@ function nodeAndLinkMaker(data) {
 }
 
 function NetworkGraph({ etAlData }) {
-  const [nodes, links] = nodeAndLinkMaker(etAlData);
   const svgRef = useRef();
+  const wrappedRef = useRef();
+  const [dimensions, setDimensions] = useState({ width: 3000, height: 3000 });
   const width = 3000;
   const height = 3000;
 
   useEffect(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      if (!entries[0]) {
+        return;
+      }
+      const { width, height } = entries[0].contentRect;
+      setDimensions({ width, height });
+    });
+    resizeObserver.observe(wrappedRef.current);
+
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (etAlData.data === null) {
+      return;
+    }
+    const centralArticleID = etAlData.sorted_citation_conversation[0].id;
+    const [nodes, links] = nodeAndLinkMaker(etAlData);
+    nodes.forEach((d) => {
+      console.log(d);
+      if (d.id === centralArticleID) {
+        d.fx = width / 2;
+        d.fy = height / 2;
+      }
+    });
+
     const svg = d3
       .select(svgRef.current)
       .attr("width", width)
@@ -38,20 +62,25 @@ function NetworkGraph({ etAlData }) {
 
     svg.selectAll("*").remove();
 
-    const domainValue = d3.extent(nodes, (d) => d.centrality_score);
-    if (domainValue[0] === 0) {
-      domainValue[0]++;
-    }
+    //the + 1 transformation is necessary bc centrality score very likely includes 0s. Whenever the scales are called add + 1 to their check
+    const correctedDomainValue = d3.extent(
+      nodes,
+      (d) => d.centrality_score + 1
+    );
 
     const valueScale = d3
-      .scaleLinear()
-      .domain(domainValue)
-      .range([domainValue[1] / 2, domainValue[0] - 1])
-      .clamp(true);
+      .scaleLog()
+      .domain(correctedDomainValue)
+      .range([width / 4, correctedDomainValue[0]]);
 
     const colorScale = d3
       .scaleSequentialLog(d3.interpolatePlasma)
-      .domain(domainValue);
+      .domain(correctedDomainValue);
+
+    const sizeScale = d3
+      .scaleLog()
+      .domain(correctedDomainValue)
+      .range([10, 110]); //this is a "magic number" bc I decided that this range from 5 and 100 looks nice
 
     const link = svg
       .append("g")
@@ -66,13 +95,10 @@ function NetworkGraph({ etAlData }) {
       .data(nodes)
       .join("circle")
       .attr("r", (d) => {
-        const rootedRadius = Math.sqrt(d.centrality_score) * 5;
-        if (rootedRadius > 5) {
-          return rootedRadius + 5;
-        }
-        return 5;
+        const value = sizeScale(d.centrality_score + 1);
+        return value;
       })
-      .attr("fill", (d) => colorScale(d.centrality_score));
+      .attr("fill", (d) => colorScale(d.centrality_score + 1));
 
     const simulation = d3
       .forceSimulation(nodes)
@@ -81,29 +107,26 @@ function NetworkGraph({ etAlData }) {
         d3
           .forceLink(links)
           .id((d) => d.id)
-          .strength(0.1)
+          .strength(0.02)
           .distance(50)
       )
       .force(
         "collide",
-        d3.forceCollide().radius((d) => {
-          const rootedRadius = Math.sqrt(d.centrality_score) * 5;
-          if (rootedRadius > 5) {
-            return rootedRadius + 10;
-          }
-          return 15;
-        })
+        d3.forceCollide().radius((d) => 10 + sizeScale(d.centrality_score + 1))
       )
       .force("center", d3.forceCenter(width / 2, height / 2).strength(1))
       .force(
         "radial",
         d3
           .forceRadial(
-            (d) => valueScale(d.centrality_score),
+            (d) => valueScale(d.centrality_score + 1),
             width / 2,
             height / 2
           )
-          .strength(1)
+          .strength((d) => {
+            const invertedStrength = 1 / (d.centrality_score + 1);
+            return Math.min(1, invertedStrength);
+          })
       );
 
     simulation.on("tick", () => {
@@ -115,14 +138,23 @@ function NetworkGraph({ etAlData }) {
 
       node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
     });
-    return () => simulation.stop();
-  }, [nodes, links]);
 
-  return (
-    <div className="viewer">
-      <svg ref={svgRef} />
-    </div>
-  );
+    return () => simulation.stop();
+  }, [etAlData]);
+
+  if (etAlData.data === null) {
+    return (
+      <div>
+        <p>Waiting on selection...</p>
+      </div>
+    );
+  } else {
+    return (
+      <div ref={wrappedRef} style={{ width: "100%", height: "100vh" }}>
+        <svg ref={svgRef} width={dimensions.width} height={dimensions.height} />
+      </div>
+    );
+  }
 }
 
 export default NetworkGraph;

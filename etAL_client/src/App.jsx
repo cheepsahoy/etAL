@@ -1,9 +1,9 @@
-import Navbar from "./components/Navbar";
-import VisualizerSpace from "./components/Visualizer";
-import { useState, useRef } from "react";
+import Navbar from "./components/searchFunctions/Navbar";
+import VisualizerSpace from "./components/citationVisualizer/Visualizer";
+import { useState } from "react";
 
 function App() {
-  const [visualizer, setVisualizer] = useState({ placeholder: true });
+  const [visualizer, setVisualizer] = useState({ data: null });
   return (
     <div
       style={{
@@ -13,7 +13,7 @@ function App() {
         flexDirection: "column",
       }}
     >
-      <Navbar />
+      <Navbar buttonFunction={setVisualizer} />
       <VisualizerSpace etALObject={visualizer} />
     </div>
   );

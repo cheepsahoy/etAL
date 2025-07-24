@@ -3,7 +3,7 @@ import SuggestionList from "./SuggestionList";
 import { useState } from "react";
 import utils from "../../frontEndUtils/utils";
 
-function SearchBar() {
+function SearchBar({ buttonFunction }) {
   const [searchResults, SetSearchResults] = useState({ results: [] });
   const debounceAutoComplete = utils.debounceAsync(etALSearch.autoComplete);
 
@@ -20,13 +20,14 @@ function SearchBar() {
     <div className="searchArea">
       <div className="searchBar">
         <input
+          id="searchBar"
           type="text"
           placeholder="Search by Article Title"
           onChange={searchHandle}
         />
         <button></button>
       </div>
-      <SuggestionList object={searchResults} />
+      <SuggestionList object={searchResults} buttonFunction={buttonFunction} />
     </div>
   );
 }

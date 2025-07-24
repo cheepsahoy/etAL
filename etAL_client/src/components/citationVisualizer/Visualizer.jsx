@@ -3,23 +3,20 @@ import etalCitationMapper from "../../../../OA_middleWare/etAL/citationMapper";
 import { useState } from "react";
 
 function VisualizerSpace({ etALObject }) {
+  console.log(etALObject);
   const [graphData, setGraphData] = useState({ data: null });
-  const buttonID = etALObject.data;
-  async function automateConversation(openAlexID) {
-    if (openAlexID !== null) {
-      const citationConversation = new etalCitationMapper();
-      citationConversation.initialize(openAlexID);
-      await citationConversation.populateConversation();
-      setGraphData(citationConversation);
-    }
-  }
+  const automateConversation = async () => {
+    const citationConversation = new etalCitationMapper();
+    citationConversation.initialize(etALObject);
+    console.log(citationConversation.centralCitationID);
+    await citationConversation.populateConversation();
+    console.log("finished populating conversation");
+    setGraphData(citationConversation);
+  };
 
   return (
     <div className="visualizerSpace">
-      <button
-        className="initializerButton"
-        onClick={automateConversation(buttonID)}
-      >
+      <button key="initializerButton" onClick={automateConversation}>
         {"Initialize Selection"}
       </button>
       <NetworkGraph etAlData={graphData} />

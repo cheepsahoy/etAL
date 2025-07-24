@@ -11,29 +11,10 @@ function arrayExtract(object) {
   } else {
     smallerArray = object.results;
   }
-
-  let finalArray = [];
-  for (const item of smallerArray) {
-    let template = {};
-    template.title = item.title ?? "No title found";
-    template.doi = item.doi ?? "No DOI found";
-    template.pubDate = item.publication_date ?? "No publication date found.";
-    template.source =
-      item?.primary_location?.source?.display_name ?? "No source found";
-    template.id = etALSearch._extractOpenAlexID(item.id);
-    template.author = "";
-
-    for (const authorObj of item.authorships) {
-      template.author += `${authorObj.author.display_name}, `;
-    }
-    const fixedName = template.author.slice(0, -2);
-    template.author = fixedName;
-    finalArray.push(template);
-  }
-  return finalArray;
+  return smallerArray;
 }
 
-function SuggestionList({ object }) {
+function SuggestionList({ object, buttonFunction }) {
   const renderData = arrayExtract(object);
   if (renderData.length === 0) {
     return (
@@ -46,14 +27,10 @@ function SuggestionList({ object }) {
   return (
     <ul>
       {renderData.map((citation) => (
-        <li key={citation.id}>
+        <li key={etALSearch._extractOpenAlexID(citation.id)}>
           <CitationCard
-            title={citation.title}
-            author={citation.author}
-            doi={citation.doi}
-            pubDate={citation.pubDate}
-            source={citation.source}
-            id={citation.id}
+            citationObj={citation}
+            buttonFunction={buttonFunction}
           />
         </li>
       ))}

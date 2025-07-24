@@ -1,7 +1,7 @@
 import { ChartNetwork } from "lucide-react";
-import SearchBar from "./searchFunctions/SearchBar";
+import SearchBar from "./SearchBar";
 
-function Navbar() {
+function Navbar({ buttonFunction }) {
   return (
     <header className="navBar">
       <div className="navContent">
@@ -28,7 +28,7 @@ function Navbar() {
           <button>Login</button>
         </div>
       </div>
-      <SearchBar />
+      <SearchBar buttonFunction={buttonFunction} />
     </header>
   );
 }
