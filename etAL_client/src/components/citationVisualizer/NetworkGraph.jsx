@@ -11,7 +11,7 @@ function nodeAndLinkMaker(data) {
     const outgoingIDs = Object.keys(id.outgoing_cites_internal);
     for (const outgoingCite of outgoingIDs) {
       const template = {
-        source: id,
+        source: id.id,
         target: outgoingCite,
       };
       links.push(template);
@@ -28,18 +28,20 @@ function NetworkGraph({ etAlData }) {
   const width = 3000;
   const height = 3000;
 
-  useEffect(() => {
+  /*   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
+      console.log("logging", entries);
       if (!entries[0]) {
         return;
       }
-      const { width, height } = entries[0].contentRect;
-      setDimensions({ width, height });
+      const { newWidth, newHeight } = entries[0].contentRect;
+      setDimensions({ width: newWidth, height: newHeight });
     });
-    resizeObserver.observe(wrappedRef.current);
-
+    if (wrappedRef.current) {
+      resizeObserver.observe(wrappedRef.current);
+    }
     return () => resizeObserver.disconnect();
-  }, []);
+  }, []); */
 
   useEffect(() => {
     if (etAlData.data === null) {
@@ -48,7 +50,6 @@ function NetworkGraph({ etAlData }) {
     const centralArticleID = etAlData.sorted_citation_conversation[0].id;
     const [nodes, links] = nodeAndLinkMaker(etAlData);
     nodes.forEach((d) => {
-      console.log(d);
       if (d.id === centralArticleID) {
         d.fx = width / 2;
         d.fy = height / 2;
@@ -84,10 +85,12 @@ function NetworkGraph({ etAlData }) {
 
     const link = svg
       .append("g")
-      .attr("stroke", "#ccc")
       .selectAll("line")
       .data(links)
-      .join("line");
+      .join("line")
+      .style("stroke", "#ccc")
+      .style("stroke-opacity", 0.33)
+      .attr("class", (d) => `link source-${d.source} target-${d.target}`);
 
     const node = svg
       .append("g")
@@ -98,7 +101,9 @@ function NetworkGraph({ etAlData }) {
         const value = sizeScale(d.centrality_score + 1);
         return value;
       })
-      .attr("fill", (d) => colorScale(d.centrality_score + 1));
+      .style("fill-opacity", 0.33)
+      .style("fill", (d) => colorScale(d.centrality_score + 1))
+      .attr("class", (d) => `node node-${d.id}`);
 
     const simulation = d3
       .forceSimulation(nodes)
@@ -107,12 +112,12 @@ function NetworkGraph({ etAlData }) {
         d3
           .forceLink(links)
           .id((d) => d.id)
-          .strength(0.02)
-          .distance(50)
+          .strength(0.02) //these numbers should be rendered more dynamically
+          .distance(50) // these numbers should be rendered more dynamically
       )
       .force(
         "collide",
-        d3.forceCollide().radius((d) => 10 + sizeScale(d.centrality_score + 1))
+        d3.forceCollide().radius((d) => 10 + sizeScale(d.centrality_score + 1)) //radius is hard coded based on range above, could be rendered more dynamically
       )
       .force("center", d3.forceCenter(width / 2, height / 2).strength(1))
       .force(
@@ -128,6 +133,10 @@ function NetworkGraph({ etAlData }) {
             return Math.min(1, invertedStrength);
           })
       );
+
+    svg.on("click", (event) => {
+      console.log(event.target.classList);
+    });
 
     simulation.on("tick", () => {
       link
@@ -150,9 +159,10 @@ function NetworkGraph({ etAlData }) {
     );
   } else {
     return (
-      <div ref={wrappedRef} style={{ width: "100%", height: "100vh" }}>
-        <svg ref={svgRef} width={dimensions.width} height={dimensions.height} />
-      </div>
+      /*       <div ref={wrappedRef} style={{ width: "100%", height: "100vh" }}> */
+      <svg ref={svgRef} width={dimensions.width} height={dimensions.height} />
+      /*       </div>
+       */
     );
   }
 }

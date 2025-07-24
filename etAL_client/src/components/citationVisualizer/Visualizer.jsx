@@ -8,9 +8,18 @@ function VisualizerSpace({ etALObject }) {
   const automateConversation = async () => {
     const citationConversation = new etalCitationMapper();
     citationConversation.initialize(etALObject);
-    console.log(citationConversation.centralCitationID);
+    const start = performance.now();
+    console.log(
+      `beginning populate conversation call for ${
+        citationConversation.citation_conversation[
+          citationConversation.centralCitationID
+        ].title
+      }`
+    );
     await citationConversation.populateConversation();
-    console.log("finished populating conversation");
+    const end = performance.now();
+    const duration = end - start;
+    console.log(`finished populating conversation with length of ${duration}`);
     setGraphData(citationConversation);
   };
 

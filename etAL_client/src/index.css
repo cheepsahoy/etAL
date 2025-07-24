@@ -78,3 +78,13 @@ body {
   border-style: dotted;
   border-radius: 10px;
 }
+
+.selectedCited {
+  border: black;
+  border-radius: 5px;
+  opacity: 1;
+}
+
+.selectedCiter {
+  opacity: 1;
+}
