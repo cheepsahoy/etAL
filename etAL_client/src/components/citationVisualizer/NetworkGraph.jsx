@@ -1,6 +1,7 @@
 import * as d3 from "d3";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 
+//
 function nodeAndLinkMaker(data) {
   const uniqueIDs = data.sorted_citation_conversation;
   const nodes = [];
@@ -21,33 +22,30 @@ function nodeAndLinkMaker(data) {
   return [nodes, links];
 }
 
-function NetworkGraph({ etAlData }) {
+function NetworkGraph({
+  etAlData,
+  selectedArticle,
+  setSelectedArticle,
+  setViewPortSize,
+}) {
   const svgRef = useRef();
-  const wrappedRef = useRef();
-  const [dimensions, setDimensions] = useState({ width: 3000, height: 3000 });
-  const width = 3000;
-  const height = 3000;
 
-  /*   useEffect(() => {
-    const resizeObserver = new ResizeObserver((entries) => {
-      console.log("logging", entries);
-      if (!entries[0]) {
-        return;
-      }
-      const { newWidth, newHeight } = entries[0].contentRect;
-      setDimensions({ width: newWidth, height: newHeight });
-    });
-    if (wrappedRef.current) {
-      resizeObserver.observe(wrappedRef.current);
-    }
-    return () => resizeObserver.disconnect();
-  }, []); */
-
+  //useEffect for initial rendering
   useEffect(() => {
+    //Early escape for empty props
     if (etAlData.data === null) {
       return;
     }
+
     const centralArticleID = etAlData.sorted_citation_conversation[0].id;
+    const derivedDimension =
+      etAlData.sorted_citation_conversation[0].centrality_score;
+    console.log(derivedDimension);
+    const width = derivedDimension * 1.5;
+    const height = derivedDimension * 1.5;
+
+    setViewPortSize({ width: width, height: height });
+
     const [nodes, links] = nodeAndLinkMaker(etAlData);
     nodes.forEach((d) => {
       if (d.id === centralArticleID) {
@@ -69,10 +67,11 @@ function NetworkGraph({ etAlData }) {
       (d) => d.centrality_score + 1
     );
 
+    //Create scaling values
     const valueScale = d3
       .scaleLog()
       .domain(correctedDomainValue)
-      .range([width / 4, correctedDomainValue[0]]);
+      .range([derivedDimension, correctedDomainValue[0]]); //this range needs to be corrected
 
     const colorScale = d3
       .scaleSequentialLog(d3.interpolatePlasma)
@@ -81,27 +80,21 @@ function NetworkGraph({ etAlData }) {
     const sizeScale = d3
       .scaleLog()
       .domain(correctedDomainValue)
-      .range([10, 110]); //this is a "magic number" bc I decided that this range from 5 and 100 looks nice
+      .range([10, 70]); //this is a "magic number" bc I decided that this range from 10 and 70 looks nice
 
     const link = svg
       .append("g")
-      .selectAll("line")
+      .selectAll(".link")
       .data(links)
       .join("line")
-      .style("stroke", "#ccc")
-      .style("stroke-opacity", 0.33)
       .attr("class", (d) => `link source-${d.source} target-${d.target}`);
 
     const node = svg
       .append("g")
-      .selectAll("circle")
+      .selectAll(".node")
       .data(nodes)
       .join("circle")
-      .attr("r", (d) => {
-        const value = sizeScale(d.centrality_score + 1);
-        return value;
-      })
-      .style("fill-opacity", 0.33)
+      .attr("r", (d) => sizeScale(d.centrality_score + 1))
       .style("fill", (d) => colorScale(d.centrality_score + 1))
       .attr("class", (d) => `node node-${d.id}`);
 
@@ -135,7 +128,12 @@ function NetworkGraph({ etAlData }) {
       );
 
     svg.on("click", (event) => {
-      console.log(event.target.classList);
+      const clickTarget = event.target;
+      if (clickTarget.matches(".node")) {
+        const datum = d3.select(clickTarget).datum();
+        const targetID = datum.id;
+        setSelectedArticle({ id: targetID, o });
+      }
     });
 
     simulation.on("tick", () => {
@@ -151,19 +149,23 @@ function NetworkGraph({ etAlData }) {
     return () => simulation.stop();
   }, [etAlData]);
 
-  if (etAlData.data === null) {
+  //update render
+  useEffect(() => {}, [selectedArticle]);
+
+  if (etAlData.loading === true) {
+    return (
+      <div>
+        <p>Loading your graph, please wait!</p>
+      </div>
+    );
+  } else if (etAlData.data === null) {
     return (
       <div>
         <p>Waiting on selection...</p>
       </div>
     );
   } else {
-    return (
-      /*       <div ref={wrappedRef} style={{ width: "100%", height: "100vh" }}> */
-      <svg ref={svgRef} width={dimensions.width} height={dimensions.height} />
-      /*       </div>
-       */
-    );
+    return <svg ref={svgRef} />;
   }
 }
 

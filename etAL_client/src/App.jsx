@@ -1,9 +1,14 @@
 import Navbar from "./components/searchFunctions/Navbar";
-import VisualizerSpace from "./components/citationVisualizer/Visualizer";
+import NetworkGraph from "./components/citationVisualizer/NetworkGraph";
 import { useState } from "react";
 
 function App() {
-  const [visualizer, setVisualizer] = useState({ data: null });
+  const [etalData, setEtalData] = useState({ data: null, loading: false });
+  const [selectedArticle, setSelectedArticle] = useState({
+    id: null,
+    oracle: false,
+  });
+  const [viewPortSize, setViewPortSize] = useState({ width: 400, height: 400 });
   return (
     <div
       style={{
@@ -13,8 +18,22 @@ function App() {
         flexDirection: "column",
       }}
     >
-      <Navbar buttonFunction={setVisualizer} />
-      <VisualizerSpace etALObject={visualizer} />
+      <Navbar setEtalDataGraphRender={setEtalData} />
+      <div
+        style={{
+          display: "flex",
+          height: viewPortSize.height.toString(),
+          width: viewPortSize.width.toString(),
+          flexDirection: "row",
+        }}
+      >
+        <NetworkGraph
+          etAlData={etalData}
+          selectedArticle={selectedArticle}
+          setSelectedArticle={setSelectedArticle}
+          setViewPortSize={setViewPortSize}
+        />
+      </div>
     </div>
   );
 }

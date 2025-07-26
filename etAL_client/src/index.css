@@ -73,18 +73,43 @@ body {
 /*
 --The Visualizer Space---
 */
-.visualizer {
-  border: black;
-  border-style: dotted;
-  border-radius: 10px;
+
+.node {
+  cursor: pointer;
+  stroke: #3182bd;
+  stroke-width: 1.5px;
+  stroke-opacity: 0;
+  fill-opacity: 0.2;
 }
 
-.selectedCited {
-  border: black;
-  border-radius: 5px;
-  opacity: 1;
+.link {
+  stroke: #9ecae1;
+  stroke-width: 1.5px;
+  stroke-opacity: 0.2;
 }
 
-.selectedCiter {
-  opacity: 1;
+.citedNode {
+  stroke-width: 5px;
+  stroke-opacity: 1;
+  fill-opacity: 1;
+}
+
+.citerNode {
+  stroke-width: 3px;
+  stroke-opacity: 1;
+  fill-opacity: 1;
+}
+
+.selectedLink {
+  stroke: purple;
+  stroke-width: 3px;
+  stroke-opacity: 1;
+}
+
+.oracleNode {
+  stroke-width: 5px;
+  stroke-opacity: 1;
+  fill-opacity: 1;
+  fill: red !important;
+  stroke: white;
 }

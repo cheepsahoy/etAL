@@ -14,28 +14,32 @@ function arrayExtract(object) {
   return smallerArray;
 }
 
-function SuggestionList({ object, buttonFunction }) {
-  const renderData = arrayExtract(object);
-  if (renderData.length === 0) {
+function SuggestionList({
+  searchResults,
+  setSearchResults,
+  setEtalDataGraphRender,
+}) {
+  if (searchResults.waiting) {
+    return <p>Waiting for Querry...</p>;
+  } else if (searchResults.id) {
+    return <p>Enjoy exploring {searchResults.id}</p>;
+  } else {
+    const renderData = arrayExtract(searchResults);
+
     return (
       <ul>
-        <li key={"loading"}>Waiting for Querry...</li>
+        {renderData.map((citation) => (
+          <li key={etALSearch._extractOpenAlexID(citation.id)}>
+            <CitationCard
+              citationObj={citation}
+              setEtalDataGraphRender={setEtalDataGraphRender}
+              setSearchResults={setSearchResults}
+            />
+          </li>
+        ))}
       </ul>
     );
   }
-
-  return (
-    <ul>
-      {renderData.map((citation) => (
-        <li key={etALSearch._extractOpenAlexID(citation.id)}>
-          <CitationCard
-            citationObj={citation}
-            buttonFunction={buttonFunction}
-          />
-        </li>
-      ))}
-    </ul>
-  );
 }
 
 export default SuggestionList;

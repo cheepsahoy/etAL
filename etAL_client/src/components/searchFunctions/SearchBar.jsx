@@ -3,8 +3,11 @@ import SuggestionList from "./SuggestionList";
 import { useState } from "react";
 import utils from "../../frontEndUtils/utils";
 
-function SearchBar({ buttonFunction }) {
-  const [searchResults, SetSearchResults] = useState({ results: [] });
+function SearchBar({ setEtalDataGraphRender }) {
+  const [searchResults, SetSearchResults] = useState({
+    waiting: true,
+    id: null,
+  });
   const debounceAutoComplete = utils.debounceAsync(etALSearch.autoComplete);
 
   async function searchHandle(input) {
@@ -27,7 +30,11 @@ function SearchBar({ buttonFunction }) {
         />
         <button></button>
       </div>
-      <SuggestionList object={searchResults} buttonFunction={buttonFunction} />
+      <SuggestionList
+        searchResults={searchResults}
+        setEtalDataGraphRender={setEtalDataGraphRender}
+        setSearchResults={SetSearchResults}
+      />
     </div>
   );
 }

@@ -1,4 +1,13 @@
 //-----Et Al Wrapper-----
+
+/**
+ * @typedef {obj} etAL_frontEndPayload
+ * @property {string} centralCitationID
+ * @property {object < etAL_Conversation_Cite} citation_conversation
+ * @property {object < etAL_Outgoing_Cite} citations_outgoing
+ * @property {array < etAL_Conversation_Cite} sorted_citation_conversation
+ * @property {array < etAL_Outgoing_Cite} sorted_citations_outgoing
+ */
 /**
  * @typedef {object} etAL_Conversation_Cite
  * @property {string} doi
