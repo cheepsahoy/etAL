@@ -8,7 +8,6 @@ function App() {
     id: null,
     oracle: false,
   });
-  const [viewPortSize, setViewPortSize] = useState({ width: 400, height: 400 });
   return (
     <div
       style={{
@@ -19,19 +18,11 @@ function App() {
       }}
     >
       <Navbar setEtalDataGraphRender={setEtalData} />
-      <div
-        style={{
-          display: "flex",
-          height: viewPortSize.height.toString(),
-          width: viewPortSize.width.toString(),
-          flexDirection: "row",
-        }}
-      >
+      <div>
         <NetworkGraph
           etAlData={etalData}
           selectedArticle={selectedArticle}
           setSelectedArticle={setSelectedArticle}
-          setViewPortSize={setViewPortSize}
         />
       </div>
     </div>
@@ -39,14 +30,3 @@ function App() {
 }
 
 export default App;
-
-/**
- *       <CitationCard
-        title={"The 'ideograph': A link between rhetoric and ideology"}
-        author={"Michael Calvin McGee"}
-        doi={"https://doi.org/10.1080/00335638009383499"}
-        pubDate={"1980-02-01"}
-        source={"Quarterly Journal of Speech"}
-        id={"https://openalex.org/W2014083076"}
-      />
- */
