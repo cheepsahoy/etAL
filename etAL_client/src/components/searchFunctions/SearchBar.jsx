@@ -2,6 +2,7 @@ import etALSearch from "../../../../OA_middleWare/etAL/etALSearch";
 import SuggestionList from "./SuggestionList";
 import { useState } from "react";
 import utils from "../../frontEndUtils/utils";
+import { Search } from "lucide-react";
 
 function SearchBar({ setEtalDataGraphRender }) {
   const [searchResults, SetSearchResults] = useState({
@@ -22,8 +23,9 @@ function SearchBar({ setEtalDataGraphRender }) {
   return (
     <div className="searchArea">
       <div className="searchBar">
+        <Search size={28} color="#ffffff" strokeWidth={1} />
         <input
-          id="searchBar"
+          id="articleSearch"
           type="text"
           placeholder="Search by Article Title"
           onChange={searchHandle}

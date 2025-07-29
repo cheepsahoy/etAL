@@ -38,10 +38,11 @@ function optimalSizeCalculator(nodes, buffer) {
     const centralRadius = sizeScale(centralNode.centrality_score + 1);
     radiusDictionary[centralNode.id] = 0;
 
-    //Find first outer node
-    const largestOuterCircle = sizeScale(sortedCircles[1].centrality_score + 1);
-    let currentRing = [];
+    if (sortedCircles.length === 1) {
+      return radiusDictionary;
+    }
 
+    let currentRing = [];
     let currentRadius = centralRadius + ringBuffer;
     let angleUsed = 0;
 
@@ -308,7 +309,9 @@ function NetworkGraph({ etAlData, selectedArticle, setSelectedArticle }) {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          flex: "4",
         }}
+        className="visualization"
       >
         <svg
           ref={svgRef}
