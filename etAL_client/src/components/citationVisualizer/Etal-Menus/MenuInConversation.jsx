@@ -6,7 +6,7 @@ function arraySubdivider(array) {
   let arraySlice = [];
 
   for (const entry of array) {
-    if (arraySlice.length > 10) {
+    if (arraySlice.length < 10) {
       arraySlice.push(entry);
     } else {
       subdivdedArray.push(arraySlice);
@@ -24,8 +24,9 @@ function MenuInConversation({ etAlData, setSelectedArticle }) {
   const subdivdedArray = useMemo(() => {
     if (etAlData.data === null) {
       return [];
+    } else {
+      return arraySubdivider(etAlData.sorted_citation_conversation);
     }
-    return arraySubdivider(etAlData);
   }, [etAlData]);
 
   return (
@@ -44,3 +45,5 @@ function MenuInConversation({ etAlData, setSelectedArticle }) {
     </div>
   );
 }
+
+export default MenuInConversation;

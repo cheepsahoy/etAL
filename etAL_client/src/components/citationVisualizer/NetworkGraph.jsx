@@ -43,7 +43,7 @@ function optimalSizeCalculator(nodes, buffer) {
     }
 
     let currentRing = [];
-    let currentRadius = centralRadius + ringBuffer;
+    let currentRadius = centralRadius + 2 * ringBuffer;
     let angleUsed = 0;
 
     //we want to go through the sortedCircles
@@ -61,7 +61,7 @@ function optimalSizeCalculator(nodes, buffer) {
       } else {
         //we are moving onto a new ring
         const biggestRadius = currentRing.reduce((a, b) => Math.max(a, b), 0);
-        currentRadius += 2 * biggestRadius + ringBuffer;
+        currentRadius += 2 * biggestRadius + 2 * ringBuffer;
         //we can't use 'angle' because it was calculated for the previous layer
         angleUsed = 2 * Math.asin(circleRadius / currentRadius);
         currentRing = [circleRadius];
@@ -100,7 +100,7 @@ function NetworkGraph({ etAlData, selectedArticle, setSelectedArticle }) {
     const centralArticleID = etAlData.sorted_citation_conversation[0].id;
     const [nodes, links] = nodeAndLinkMaker(etAlData);
 
-    const nodeBufferSize = 5;
+    const nodeBufferSize = 10;
     const smallestNode = 10;
     const largestNode = 100;
 

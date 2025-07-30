@@ -1,3 +1,5 @@
+import MenuInConversation from "./Etal-Menus/MenuInConversation";
+
 function NetworkMenus({ etAlData, selectedArticle, setSelectedArticle }) {
   return (
     <div
@@ -7,7 +9,12 @@ function NetworkMenus({ etAlData, selectedArticle, setSelectedArticle }) {
         flexDirection: "column",
         flex: "1",
       }}
-    ></div>
+    >
+      <MenuInConversation
+        etAlData={etAlData}
+        setSelectedArticle={setSelectedArticle}
+      />
+    </div>
   );
 }
 
