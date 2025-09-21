@@ -36,15 +36,15 @@ function optimalSizeCalculator(nodes, buffer) {
     const radiusDictionary = {};
     const centralNode = sortedCircles[0];
     const centralRadius = sizeScale(centralNode.centrality_score + 1);
-    radiusDictionary[centralNode.id] = 0;
-
-    if (sortedCircles.length === 1) {
-      return radiusDictionary;
-    }
+    radiusDictionary[centralNode.id] = centralRadius;
 
     let currentRing = [];
     let currentRadius = centralRadius + 2 * ringBuffer;
     let angleUsed = 0;
+
+    if (sortedCircles.length === 1) {
+      return [radiusDictionary, currentRadius];
+    }
 
     //we want to go through the sortedCircles
     for (let i = 1; i < sortedCircles.length; i++) {

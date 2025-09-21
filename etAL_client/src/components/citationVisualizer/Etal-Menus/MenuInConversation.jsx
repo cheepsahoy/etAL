@@ -19,13 +19,17 @@ function arraySubdivider(array) {
   return subdivdedArray;
 }
 
-function MenuInConversation({ etAlData, setSelectedArticle }) {
+function MenuInConversation({ oracleMode, etAlData, setSelectedArticle }) {
   const [pageNumber, setPageNumber] = useState(0);
   const subdivdedArray = useMemo(() => {
     if (etAlData.data === null) {
       return [];
     } else {
-      return arraySubdivider(etAlData.sorted_citation_conversation);
+      const newArray = [...etAlData.sorted_citation_conversation];
+      if (oracleMode) {
+        newArray.sort((a, b) => b.oracle_score - a.oracle_score);
+      }
+      return arraySubdivider(newArray);
     }
   }, [etAlData]);
 
@@ -33,7 +37,11 @@ function MenuInConversation({ etAlData, setSelectedArticle }) {
     <div className="menuInConversation" style={{ border: "5px solid black" }}>
       <p>
         <u>
-          <b>Internal Conversation Cites</b>
+          {oracleMode ? (
+            <b> Oracle Conversation Cites</b>
+          ) : (
+            <b> Internal Conversation Cites</b>
+          )}
         </u>
       </p>
       <MenuInConversationResultsPage

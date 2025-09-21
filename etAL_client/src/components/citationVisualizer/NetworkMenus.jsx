@@ -6,11 +6,17 @@ function NetworkMenus({ etAlData, selectedArticle, setSelectedArticle }) {
       className="dataViewers"
       style={{
         display: "flex",
-        flexDirection: "column",
+        flexDirection: "row",
         flex: "1",
       }}
     >
       <MenuInConversation
+        oracleMode={false}
+        etAlData={etAlData}
+        setSelectedArticle={setSelectedArticle}
+      />
+      <MenuInConversation
+        oracleMode={true}
         etAlData={etAlData}
         setSelectedArticle={setSelectedArticle}
       />

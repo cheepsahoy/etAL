@@ -19,7 +19,7 @@ class OA_API {
      * @returns {Promise<OA_WorkSearch}
      */
     async simpleSearchByName(searchQuerry) {
-        let searchPath = 'works?search='
+        let searchPath = 'works?&filter=title_and_abstract.search:'
         let lowerSearch = searchQuerry.toLowerCase()
         let searchParam = encodeURI(lowerSearch)
 
