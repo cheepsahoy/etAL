@@ -22,55 +22,103 @@ function nodeAndLinkMaker(data) {
   return [nodes, links];
 }
 
-//calculate optimal size. premise is to use a 'rollingCircle' approach to imagine average size (this is a 'worst case scenario') thinking about the biggest canvas needed. most likely most circles will be size 10, not between 10 and 100.
+//calculate optimal size. premise is to use a 'rollingCircle' approach to imagine average size (this is a 'worst case scenario') thinking about the biggest canvas needed. most likely most circles will be size 10, not between 10 and 100. The function is composed of many helper functions to calculate angles and such but the final output is simply useable data for d3's radial force
 function optimalSizeCalculator(nodes, buffer) {
   const sortedNodes = [...nodes].sort(
     (a, b) => b.centrality_score - a.centrality_score
   );
   const centralityScores = nodes.map((node) => node.centrality_score + 1);
-  const centralityRange = d3.extent(centralityScores);
-  const sizeScale = d3.scaleLog().domain(centralityRange).range([10, 100]); //this is a "magic number" bc I decided that this range from 10 and 100 looks nice
+  const centralityDomain = d3.extent(centralityScores);
+  const sizeScale = d3.scaleLog().domain(centralityDomain).range([10, 100]); //this is a "magic number" bc I decided that this range from 10 and 100 looks nice
+
+  function angleOutput(radiA, radiB, layerRadi) {
+    const numerator =
+      (radiA + layerRadi) ** 2 +
+      (radiB + layerRadi) ** 2 -
+      (radiA + radiB) ** 2;
+
+    const denominator = 2 * (layerRadi + radiA) * (layerRadi + radiB);
+
+    const output = Math.acos(numerator / denominator);
+
+    return output;
+  }
+
+  function dictionaryUpdater(dictionary, currentRing) {
+    const startingPosition = currentRing[0].startingPosition;
+    for (const circle of currentRing) {
+      dictionary[circle.id] = startingPosition;
+    }
+  }
 
   function circlePacker(sortedCircles, ringBuffer) {
-    //Establish the central node, it will be skipped in future calculations
     const radiusDictionary = {};
+    //establish central node, it will be skipped in future calculations
     const centralNode = sortedCircles[0];
     const centralRadius = sizeScale(centralNode.centrality_score + 1);
-    radiusDictionary[centralNode.id] = centralRadius;
+    radiusDictionary[centralNode.id] = 0;
 
+    let currentRadius = centralRadius + ringBuffer;
     let currentRing = [];
-    let currentRadius = centralRadius + 2 * ringBuffer;
-    let angleUsed = 0;
+    let firstOnRing;
+    let previousCircle;
+    let angleSum = 0;
 
     if (sortedCircles.length === 1) {
       return [radiusDictionary, currentRadius];
     }
 
-    //we want to go through the sortedCircles
     for (let i = 1; i < sortedCircles.length; i++) {
       const id = sortedCircles[i].id;
       const centrality_score = sortedCircles[i].centrality_score;
       const circleRadius = sizeScale(centrality_score + 1);
-      const angle = 2 * Math.asin(circleRadius / currentRadius);
+      const circleObj = {
+        id: id,
+        circleRadius: circleRadius,
+      };
 
-      //this checks if it "fits" the curent ring
-      if (angleUsed + angle <= 2 * Math.PI) {
-        currentRing.push(circleRadius);
-        angleUsed += angle;
-        radiusDictionary[id] = currentRadius;
+      if (currentRing.length === 0) {
+        circleObj.startingPosition = currentRadius + ringBuffer + circleRadius;
+        firstOnRing = circleObj;
+        previousCircle = circleObj;
+        currentRing.push(circleObj);
       } else {
-        //we are moving onto a new ring
-        const biggestRadius = currentRing.reduce((a, b) => Math.max(a, b), 0);
-        currentRadius += 2 * biggestRadius + 2 * ringBuffer;
-        //we can't use 'angle' because it was calculated for the previous layer
-        angleUsed = 2 * Math.asin(circleRadius / currentRadius);
-        currentRing = [circleRadius];
-        radiusDictionary[id] = currentRadius;
+        const incrementValue = angleOutput(
+          circleObj.circleRadius,
+          previousCircle.circleRadius,
+          currentRadius
+        );
+        const closureValue = angleOutput(
+          circleObj.circleRadius,
+          firstOnRing.circleRadius,
+          currentRadius
+        );
+
+        if (angleSum + incrementValue + closureValue <= 2 * Math.PI) {
+          angleSum += incrementValue;
+          previousCircle = circleObj;
+          currentRing.push(circleObj);
+        } else {
+          angleSum = 0;
+          dictionaryUpdater(radiusDictionary, currentRing);
+          const ringExtender = currentRing[0].circleRadius;
+          currentRadius += 2 * ringExtender + ringBuffer;
+          currentRing = [];
+          circleObj.startingPosition =
+            currentRadius + ringBuffer + circleRadius;
+          firstOnRing = circleObj;
+          previousCircle = circleObj;
+          currentRing.push(circleObj);
+        }
       }
     }
-
+    if (currentRing.length !== 0) {
+      dictionaryUpdater(radiusDictionary, currentRing);
+    }
+    console.log(radiusDictionary);
     return [radiusDictionary, currentRadius];
   }
+
   const [radiusDictionary, finalRadius] = circlePacker(sortedNodes, buffer);
   const dimensions = 2 * finalRadius;
   return {
@@ -83,12 +131,6 @@ function optimalSizeCalculator(nodes, buffer) {
 
 function NetworkGraph({ etAlData, selectedArticle, setSelectedArticle }) {
   const svgRef = useRef();
-  const selectedArticleRef = useRef(selectedArticle);
-
-  //useEffect for tracking selectedArticle outside of rendering
-  useEffect(() => {
-    selectedArticleRef.current = selectedArticle;
-  }, [selectedArticle]);
 
   //useEffect for initial rendering
   useEffect(() => {
@@ -121,8 +163,7 @@ function NetworkGraph({ etAlData, selectedArticle, setSelectedArticle }) {
       .select(svgRef.current)
       .attr("width", "100%")
       .attr("height", "100%")
-      .attr("viewBox", `0 0 ${width * 2} ${height * 2}`)
-      .attr("preserveAspectRatio", "xMidYMid meet");
+      .attr("viewBox", `0 0 ${width * 2} ${height * 2}`);
 
     //clear previous content on new render
     svg.selectAll("*").remove();
@@ -165,7 +206,7 @@ function NetworkGraph({ etAlData, selectedArticle, setSelectedArticle }) {
         d3
           .forceLink(links)
           .id((d) => d.id)
-          .strength(0.02) //these numbers should be rendered more dynamically
+          .strength(0.002) //these numbers should be rendered more dynamically
           .distance(nodeBufferSize) // these numbers can be rendered more dynamically
       )
       .force(
@@ -184,8 +225,7 @@ function NetworkGraph({ etAlData, selectedArticle, setSelectedArticle }) {
             height / 2
           )
           .strength((d) => {
-            const invertedStrength = 1 / (d.centrality_score + 1);
-            return Math.min(1, invertedStrength);
+            return 0.9; //could be rendered more dynamically?
           })
       );
 
@@ -194,17 +234,16 @@ function NetworkGraph({ etAlData, selectedArticle, setSelectedArticle }) {
       if (clickTarget.matches(".node")) {
         const datum = d3.select(clickTarget).datum();
         const targetID = datum.id;
-        const previousArticleID = selectedArticleRef.current.id;
-        console.log(datum, datum.title);
-        if (previousArticleID === targetID) {
-          const newOracle = !selectedArticleRef.current.oracle;
-          setSelectedArticle({
-            id: targetID,
-            oracle: newOracle,
-          });
-        } else {
-          setSelectedArticle({ id: targetID, oracle: false });
-        }
+        console.log(targetID);
+        console.log(sizes.radiusDictionary);
+        console.log(sizes.radiusDictionary[targetID]);
+        setSelectedArticle((prev) => {
+          if (prev?.id === targetID) {
+            return { id: targetID, oracle: !prev.oracle };
+          } else {
+            return { id: targetID, oracle: false };
+          }
+        });
       }
     });
 
@@ -221,7 +260,7 @@ function NetworkGraph({ etAlData, selectedArticle, setSelectedArticle }) {
     return () => simulation.stop();
   }, [etAlData]);
 
-  //update render
+  //useEffect for rehilghting on clicks
   useEffect(() => {
     const targetID = selectedArticle.id;
     const oracleStatus = selectedArticle.oracle;
