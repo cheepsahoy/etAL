@@ -115,7 +115,6 @@ function optimalSizeCalculator(nodes, buffer) {
     if (currentRing.length !== 0) {
       dictionaryUpdater(radiusDictionary, currentRing);
     }
-    console.log(radiusDictionary);
     return [radiusDictionary, currentRadius];
   }
 
@@ -183,12 +182,27 @@ function NetworkGraph({ etAlData, selectedArticle, setSelectedArticle }) {
       .domain(correctedDomainValue)
       .range([smallestNode, largestNode]); //this is a "magic number" bc I decided that this range from 10 and 100 looks nice
 
+    const idToNode = {};
+    nodes.forEach((node) => {
+      idToNode[node.id] = node;
+    });
+    const resolvedLinks = links.map((link) => {
+      const fixedEntry = {
+        source: idToNode[link.source],
+        target: idToNode[link.target],
+      };
+      return fixedEntry;
+    });
+
     const link = svg
       .append("g")
+      .attr("stroke", "#999")
+      .attr("stroke-width", 1.5)
       .selectAll(".link")
-      .data(links)
+      .data(resolvedLinks)
       .join("line")
-      .attr("class", (d) => `link source-${d.source} target-${d.target}`);
+      .attr("class", (d) => `link source-${d.source} target-${d.target}`)
+      .attr("pointer-events", "none");
 
     const node = svg
       .append("g")
@@ -199,23 +213,19 @@ function NetworkGraph({ etAlData, selectedArticle, setSelectedArticle }) {
       .style("fill", (d) => colorScale(d.centrality_score + 1))
       .attr("class", (d) => `node node-${d.id}`);
 
+    const centerStrength = nodes.length > 2 ? 1 : 0; //with less than 2 the radial force is overwhelmed by the center force
     const simulation = d3
       .forceSimulation(nodes)
-      .force(
-        "link",
-        d3
-          .forceLink(links)
-          .id((d) => d.id)
-          .strength(0.002) //these numbers should be rendered more dynamically
-          .distance(nodeBufferSize) // these numbers can be rendered more dynamically
-      )
       .force(
         "collide",
         d3
           .forceCollide()
           .radius((d) => nodeBufferSize + sizeScale(d.centrality_score + 1)) //radius is hard coded based on range above, could be rendered more dynamically?
       )
-      .force("center", d3.forceCenter(width / 2, height / 2).strength(1))
+      .force(
+        "center",
+        d3.forceCenter(width / 2, height / 2).strength(centerStrength)
+      )
       .force(
         "radial",
         d3
@@ -235,7 +245,6 @@ function NetworkGraph({ etAlData, selectedArticle, setSelectedArticle }) {
         const datum = d3.select(clickTarget).datum();
         const targetID = datum.id;
         console.log(targetID);
-        console.log(sizes.radiusDictionary);
         console.log(sizes.radiusDictionary[targetID]);
         setSelectedArticle((prev) => {
           if (prev?.id === targetID) {
@@ -248,13 +257,13 @@ function NetworkGraph({ etAlData, selectedArticle, setSelectedArticle }) {
     });
 
     simulation.on("tick", () => {
+      node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+
       link
         .attr("x1", (d) => d.source.x)
         .attr("y1", (d) => d.source.y)
         .attr("x2", (d) => d.target.x)
         .attr("y2", (d) => d.target.y);
-
-      node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
     });
 
     return () => simulation.stop();

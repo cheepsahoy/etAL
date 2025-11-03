@@ -91,7 +91,7 @@ class OA_API {
         paramObj['&cursor='] = '*'
 
         let fullCites = []
-        let path = 'works?per-page=100&filter=cites:'
+        let path = 'works?per-page=200&filter=cites:'
 
         let resp = await this._queryAPI('GET', path, paramObj)
         paramObj['&cursor='] = resp.meta.next_cursor
