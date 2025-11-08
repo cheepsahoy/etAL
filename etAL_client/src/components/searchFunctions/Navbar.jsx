@@ -1,7 +1,7 @@
 import { ChartNetwork } from "lucide-react";
 import SearchBar from "./SearchBar";
 
-function Navbar({ setEtalDataGraphRender }) {
+function Navbar({ setEtalDataGraphRender, setRenderFinished }) {
   return (
     <header className="navBar">
       <div className="navContent">
@@ -28,7 +28,10 @@ function Navbar({ setEtalDataGraphRender }) {
           <button>Login</button>
         </div>
       </div>
-      <SearchBar setEtalDataGraphRender={setEtalDataGraphRender} />
+      <SearchBar
+        setEtalDataGraphRender={setEtalDataGraphRender}
+        setRenderFinished={setRenderFinished}
+      />
     </header>
   );
 }

@@ -4,7 +4,7 @@ import { useState } from "react";
 import utils from "../../frontEndUtils/utils";
 import { Search } from "lucide-react";
 
-function SearchBar({ setEtalDataGraphRender }) {
+function SearchBar({ setEtalDataGraphRender, setRenderFinished }) {
   const [searchResults, SetSearchResults] = useState({
     waiting: true,
     id: null,
@@ -36,6 +36,7 @@ function SearchBar({ setEtalDataGraphRender }) {
         searchResults={searchResults}
         setEtalDataGraphRender={setEtalDataGraphRender}
         setSearchResults={SetSearchResults}
+        setRenderFinished={setRenderFinished}
       />
     </div>
   );

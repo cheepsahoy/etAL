@@ -4,7 +4,11 @@ import NetworkMenus from "./components/citationVisualizer/NetworkMenus";
 import { useState } from "react";
 
 function App() {
-  const [etalData, setEtalData] = useState({ data: null, loading: false });
+  const [etalData, setEtalData] = useState({
+    data: null,
+    loading: false,
+    timeToLoad: null,
+  });
   const [selectedArticle, setSelectedArticle] = useState({
     id: null,
     oracle: false,
@@ -22,7 +26,10 @@ function App() {
         flexDirection: "column",
       }}
     >
-      <Navbar setEtalDataGraphRender={setEtalData} />
+      <Navbar
+        setEtalDataGraphRender={setEtalData}
+        setRenderFinished={setRenderFinished}
+      />
       <div
         style={{
           display: "flex",

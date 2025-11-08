@@ -18,6 +18,7 @@ function SuggestionList({
   searchResults,
   setSearchResults,
   setEtalDataGraphRender,
+  setRenderFinished,
 }) {
   if (searchResults.waiting) {
     return <p>Waiting for Querry...</p>;
@@ -34,6 +35,7 @@ function SuggestionList({
               citationObj={citation}
               setEtalDataGraphRender={setEtalDataGraphRender}
               setSearchResults={setSearchResults}
+              setRenderFinished={setRenderFinished}
             />
           </li>
         ))}

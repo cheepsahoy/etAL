@@ -45,6 +45,7 @@ function CitationCard({
   citationObj,
   setEtalDataGraphRender,
   setSearchResults,
+  setRenderFinished,
 }) {
   //Populating template for CitationCard
   const template = {};
@@ -57,6 +58,8 @@ function CitationCard({
     "No primary source on record";
   template.id = etALSearch._extractOpenAlexID(citationObj.id);
   template.author = "";
+  template.citationsCount =
+    citationObj.cited_by_count ?? "No citation data exists";
 
   for (const authorObj of citationObj.authorships) {
     template.author += `${authorObj.author.display_name}, `;
@@ -70,10 +73,16 @@ function CitationCard({
       waiting: false,
       id: citationObj.title,
     });
-    setEtalDataGraphRender({ data: null, loading: true });
+    setEtalDataGraphRender({
+      data: null,
+      loading: true,
+      timeToLoad: citationObj.cited_by_count,
+    });
 
     const citationConversation = await callEtAl(citationObj);
-
+    //'finish' the loading bar and speed it up
+    setRenderFinished(true);
+    setTimeout(800);
     setEtalDataGraphRender(citationConversation);
   }
 
@@ -99,7 +108,8 @@ function CitationCard({
           {template.author}
         </p>
         <p style={{ marginTop: "5px", marginBottom: "0" }}>
-          {template.pubDate}, {template.source}, {template.doi}
+          {template.pubDate}, {template.source}, {template.doi}, cited by:{" "}
+          {template.citationsCount}
         </p>
       </div>
       <button id={template.id} onClick={clickHandler}>
