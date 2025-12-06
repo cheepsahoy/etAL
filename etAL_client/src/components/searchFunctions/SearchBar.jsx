@@ -4,8 +4,8 @@ import { useState } from "react";
 import utils from "../../frontEndUtils/utils";
 import { Search } from "lucide-react";
 
-function SearchBar({ setEtalDataGraphRender, setRenderFinished }) {
-  const [searchResults, SetSearchResults] = useState({
+function SearchBar({ setEtalDataGraphRender }) {
+  const [searchResults, setSearchResults] = useState({
     waiting: true,
     id: null,
   });
@@ -16,7 +16,7 @@ function SearchBar({ setEtalDataGraphRender, setRenderFinished }) {
     if (inputValue.length !== 0) {
       const resp = await debounceAutoComplete(inputValue);
       console.log(resp);
-      SetSearchResults(resp);
+      setSearchResults(resp);
     }
   }
 
@@ -34,9 +34,7 @@ function SearchBar({ setEtalDataGraphRender, setRenderFinished }) {
       </div>
       <SuggestionList
         searchResults={searchResults}
-        setEtalDataGraphRender={setEtalDataGraphRender}
-        setSearchResults={SetSearchResults}
-        setRenderFinished={setRenderFinished}
+        setSearchResults={setSearchResults}
       />
     </div>
   );

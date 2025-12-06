@@ -1,6 +1,6 @@
 import MenuInConversation from "./Etal-Menus/MenuInConversation";
 
-function NetworkMenus({ etAlData, selectedArticle, setSelectedArticle }) {
+function NetworkMenus() {
   return (
     <div
       className="dataViewers"
@@ -10,16 +10,8 @@ function NetworkMenus({ etAlData, selectedArticle, setSelectedArticle }) {
         flex: "1",
       }}
     >
-      <MenuInConversation
-        oracleMode={false}
-        etAlData={etAlData}
-        setSelectedArticle={setSelectedArticle}
-      />
-      <MenuInConversation
-        oracleMode={true}
-        etAlData={etAlData}
-        setSelectedArticle={setSelectedArticle}
-      />
+      <MenuInConversation oracleMode={true} />
+      <MenuInConversation oracleMode={false} />
     </div>
   );
 }

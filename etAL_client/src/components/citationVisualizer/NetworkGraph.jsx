@@ -1,5 +1,6 @@
 import * as d3 from "d3";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo } from "react";
+import useNetworkGraphContext from "../../hooks/useNetworkGraphContext";
 
 //
 function nodeAndLinkMaker(data) {
@@ -128,18 +129,25 @@ function optimalSizeCalculator(nodes, buffer) {
   };
 }
 
-function NetworkGraph({ etAlData, selectedArticle, setSelectedArticle }) {
+function NetworkGraph() {
   const svgRef = useRef();
+
+  const { data, selectedArticle, setArticle, loading } =
+    useNetworkGraphContext();
+  console.log("before render", selectedArticle);
 
   //useEffect for initial rendering
   useEffect(() => {
+    console.log("we are drawing", data);
+
     //Early escape for empty props
-    if (etAlData.data === null) {
+    if (data === null) {
+      console.log("we nulled");
       return;
     }
 
-    const centralArticleID = etAlData.sorted_citation_conversation[0].id;
-    const [nodes, links] = nodeAndLinkMaker(etAlData);
+    const centralArticleID = data.sorted_citation_conversation[0].id;
+    const [nodes, links] = nodeAndLinkMaker(data);
 
     const nodeBufferSize = 10;
     const smallestNode = 10;
@@ -239,22 +247,14 @@ function NetworkGraph({ etAlData, selectedArticle, setSelectedArticle }) {
           })
       );
 
-    svg.on("click", (event) => {
-      const clickTarget = event.target;
-      if (clickTarget.matches(".node")) {
-        const datum = d3.select(clickTarget).datum();
-        const targetID = datum.id;
-        console.log(targetID);
-        console.log(sizes.radiusDictionary[targetID]);
-        setSelectedArticle((prev) => {
-          if (prev?.id === targetID) {
-            return { id: targetID, oracle: !prev.oracle };
-          } else {
-            return { id: targetID, oracle: false };
-          }
-        });
-      }
-    });
+    // svg.on("click", (event) => {
+    //   const clickTarget = event.target;
+    //   if (clickTarget.matches(".node")) {
+    //     const datum = d3.select(clickTarget).datum();
+    //     const targetID = datum.id;
+    //     setArticle(targetID);
+    //   }
+    // });
 
     simulation.on("tick", () => {
       node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
@@ -267,16 +267,29 @@ function NetworkGraph({ etAlData, selectedArticle, setSelectedArticle }) {
     });
 
     return () => simulation.stop();
-  }, [etAlData]);
+  }, [data]);
 
   //useEffect for rehilghting on clicks
   useEffect(() => {
+    if (!selectedArticle) {
+      return;
+    }
     const targetID = selectedArticle.id;
     const oracleStatus = selectedArticle.oracle;
     if (targetID === null) {
       return;
     }
     const graph = d3.select(svgRef.current);
+
+    graph.on("click", (event) => {
+      const clickTarget = event.target;
+      if (clickTarget.matches(".node")) {
+        const datum = d3.select(clickTarget).datum();
+        const targetID = datum.id;
+        setArticle(targetID);
+      }
+    });
+
     const citingObj = {};
 
     if (oracleStatus === true) {
@@ -336,41 +349,37 @@ function NetworkGraph({ etAlData, selectedArticle, setSelectedArticle }) {
     }
   }, [selectedArticle]);
 
-  if (etAlData.loading === true) {
-    return (
-      <div>
-        <p>Loading your graph, please wait!</p>
-      </div>
-    );
-  } else if (etAlData.data === null) {
-    return (
-      <div>
-        <p>Waiting on selection...</p>
-      </div>
-    );
-  } else {
-    return (
-      <div
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "800px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flex: "4",
+      }}
+      className="visualization"
+    >
+      {loading ? (
+        <div>
+          <p>Loading your graph, please wait!</p>
+        </div>
+      ) : !data ? (
+        <div>
+          <p>Waiting on selection...</p>
+        </div>
+      ) : null}
+
+      <svg
+        ref={svgRef}
         style={{
           width: "100%",
-          height: "800px",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flex: "4",
+          height: "100%",
         }}
-        className="visualization"
-      >
-        <svg
-          ref={svgRef}
-          style={{
-            width: "100%",
-            height: "100%",
-          }}
-        />
-      </div>
-    );
-  }
+      />
+    </div>
+  );
 }
 
 export default NetworkGraph;

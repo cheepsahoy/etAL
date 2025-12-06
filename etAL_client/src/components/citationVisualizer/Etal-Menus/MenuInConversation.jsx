@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import MenuInConversationResultsPage from "./MenuInConversationResultsPage";
+import useNetworkGraphContext from "../../../hooks/useNetworkGraphContext";
 
 function arraySubdivider(array) {
   const subdivdedArray = [];
@@ -19,19 +20,20 @@ function arraySubdivider(array) {
   return subdivdedArray;
 }
 
-function MenuInConversation({ oracleMode, etAlData, setSelectedArticle }) {
+function MenuInConversation({ oracleMode }) {
   const [pageNumber, setPageNumber] = useState(0);
+  const { data } = useNetworkGraphContext();
   const subdivdedArray = useMemo(() => {
-    if (etAlData.data === null) {
+    if (data === null) {
       return [];
     } else {
-      const newArray = [...etAlData.sorted_citation_conversation];
+      const newArray = [...data.sorted_citation_conversation];
       if (oracleMode) {
         newArray.sort((a, b) => b.oracle_score - a.oracle_score);
       }
       return arraySubdivider(newArray);
     }
-  }, [etAlData]);
+  }, [data]);
 
   return (
     <div className="menuInConversation" style={{ border: "5px solid black" }}>
@@ -48,7 +50,6 @@ function MenuInConversation({ oracleMode, etAlData, setSelectedArticle }) {
         pageNumber={pageNumber}
         setPageNunber={setPageNumber}
         subData={subdivdedArray}
-        setSelectedArticle={setSelectedArticle}
       />
     </div>
   );

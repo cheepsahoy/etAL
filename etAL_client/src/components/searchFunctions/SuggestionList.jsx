@@ -33,9 +33,7 @@ function SuggestionList({
           <li key={etALSearch._extractOpenAlexID(citation.id)}>
             <CitationCard
               citationObj={citation}
-              setEtalDataGraphRender={setEtalDataGraphRender}
               setSearchResults={setSearchResults}
-              setRenderFinished={setRenderFinished}
             />
           </li>
         ))}

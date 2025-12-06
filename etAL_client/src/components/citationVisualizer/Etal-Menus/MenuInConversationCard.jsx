@@ -1,3 +1,4 @@
+import useNetworkGraphContext from "../../../hooks/useNetworkGraphContext";
 function lastNameExtractor(string) {
   const regex = /\b(\w+)$/;
   const match = string.match(regex);
@@ -31,7 +32,9 @@ function finalAuthorName(authorArray) {
   return finalName;
 }
 
-function MenuInConversationCard({ data, setSelectedArticle }) {
+function MenuInConversationCard({ data }) {
+  const { setArticle } = useNetworkGraphContext();
+
   if (data.data) {
     const uniqueID = "endResults";
     const payload = data.data;
@@ -53,7 +56,7 @@ function MenuInConversationCard({ data, setSelectedArticle }) {
     const finalName = finalAuthorName(authorArray);
 
     function buttonHandler() {
-      setSelectedArticle({ id: uniqueID, oracle: false });
+      setArticle(uniqueID);
       return;
     }
 

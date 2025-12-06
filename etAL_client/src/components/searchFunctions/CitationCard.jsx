@@ -1,52 +1,9 @@
 import etALSearch from "../../../../OA_middleWare/etAL/etALSearch";
-import etalCitationMapper from "../../../../OA_middleWare/etAL/citationMapper";
+import useNetworkGraphContext from "../../hooks/useNetworkGraphContext";
 
-//callEtAl can be moved to the backend
-/**
- *
- * @param {OA_WorkObject} citationObj
- * @returns {etAL_frontEndPayload}
- */
-async function callEtAl(citationObj) {
-  const citationConversation = new etalCitationMapper();
-  citationConversation.initialize(citationObj);
-  console.log(
-    "Handling click in citation card, setting searchResult id to",
-    citationObj.title
-  );
+function CitationCard({ citationObj, setSearchResults }) {
+  const { loadData } = useNetworkGraphContext();
 
-  const start = performance.now();
-  console.log(
-    `beginning populate conversation call for ${
-      citationConversation.citation_conversation[
-        citationConversation.centralCitationID
-      ].title
-    }`
-  );
-  await citationConversation.populateConversation();
-  const end = performance.now();
-  const duration = end - start;
-  console.log(
-    `finished populating conversation, performance time was ${duration} ms`
-  );
-
-  const finalPayload = {
-    centralCitationID: citationConversation.centralCitationID,
-    citation_conversation: citationConversation.citation_conversation,
-    citations_outgoing: citationConversation.citations_outgoing,
-    sorted_citation_conversation:
-      citationConversation.sorted_citation_conversation,
-    sorted_citations_outgoing: citationConversation.sorted_citations_outgoing,
-  };
-  return finalPayload;
-}
-
-function CitationCard({
-  citationObj,
-  setEtalDataGraphRender,
-  setSearchResults,
-  setRenderFinished,
-}) {
   //Populating template for CitationCard
   const template = {};
   template.title = citationObj.title ?? "No primary title on record";
@@ -68,22 +25,13 @@ function CitationCard({
   template.author = fixedName;
 
   //Creating clickHandler function
-  async function clickHandler() {
+  function clickHandler() {
     setSearchResults({
       waiting: false,
       id: citationObj.title,
     });
-    setEtalDataGraphRender({
-      data: null,
-      loading: true,
-      timeToLoad: citationObj.cited_by_count,
-    });
 
-    const citationConversation = await callEtAl(citationObj);
-    //'finish' the loading bar and speed it up
-    setRenderFinished(true);
-    setTimeout(800);
-    setEtalDataGraphRender(citationConversation);
+    loadData(citationObj, (citationObj.cited_by_count / 200) * 1.5);
   }
 
   return (

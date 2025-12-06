@@ -1,11 +1,6 @@
 import MenuInConversationCard from "./MenuInConversationCard";
 
-function MenuInConversationResultsPage({
-  pageNumber,
-  setPageNunber,
-  subData,
-  setSelectedArticle,
-}) {
+function MenuInConversationResultsPage({ pageNumber, setPageNunber, subData }) {
   if (subData.length === 0) {
     return <p>Waiting on data...</p>;
   } else {
@@ -41,10 +36,7 @@ function MenuInConversationResultsPage({
             const uniqueID = article.id;
             return (
               <li key={uniqueID}>
-                <MenuInConversationCard
-                  data={article}
-                  setSelectedArticle={setSelectedArticle}
-                />
+                <MenuInConversationCard data={article} />
               </li>
             );
           })}
