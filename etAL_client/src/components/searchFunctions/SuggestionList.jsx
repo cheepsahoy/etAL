@@ -14,12 +14,7 @@ function arrayExtract(object) {
   return smallerArray;
 }
 
-function SuggestionList({
-  searchResults,
-  setSearchResults,
-  setEtalDataGraphRender,
-  setRenderFinished,
-}) {
+function SuggestionList({ searchResults, setSearchResults }) {
   if (searchResults.waiting) {
     return <p>Waiting for Querry...</p>;
   } else if (searchResults.id) {
