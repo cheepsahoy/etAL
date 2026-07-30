@@ -6,4 +6,4 @@ Its frontend is built on React and Vite.
 
 Its internal logic is built through Javascript and the OpenAlex API.
 
-Its backend is WIP.
+No backend yet.
