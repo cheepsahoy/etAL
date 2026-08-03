@@ -50,6 +50,7 @@ function useNetworkGraphContext() {
     setState({
       loading: true,
       timeToLoadMS: loadTimeSeconds ? loadTimeSeconds * 1000 : null,
+      selectedArticle: null,
     });
     const resp = await callEtAl(citationObj);
     setState({ data: resp });
