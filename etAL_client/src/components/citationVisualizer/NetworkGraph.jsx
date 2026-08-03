@@ -269,6 +269,25 @@ function NetworkGraph() {
     return () => simulation.stop();
   }, [data]);
 
+  // Keep graph interaction independent from whether an article is selected.
+  useEffect(() => {
+    if (!data) {
+      return;
+    }
+
+    const graph = d3.select(svgRef.current);
+
+    graph.on("click", (event) => {
+      const clickTarget = event.target;
+      if (clickTarget.matches(".node")) {
+        const datum = d3.select(clickTarget).datum();
+        setArticle(datum.id);
+      }
+    });
+
+    return () => graph.on("click", null);
+  }, [data, setArticle]);
+
   //useEffect for rehilghting on clicks
   useEffect(() => {
     if (!selectedArticle) {
@@ -280,15 +299,6 @@ function NetworkGraph() {
       return;
     }
     const graph = d3.select(svgRef.current);
-
-    graph.on("click", (event) => {
-      const clickTarget = event.target;
-      if (clickTarget.matches(".node")) {
-        const datum = d3.select(clickTarget).datum();
-        const targetID = datum.id;
-        setArticle(targetID);
-      }
-    });
 
     const citingObj = {};
 
