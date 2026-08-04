@@ -1,0 +1,22 @@
+{
+    "name": "etal-root",
+    "version": "1.0.0",
+    "description": "EtAl is a scholarly conversation visualizer.",
+    "private": true,
+    "scripts": {
+        "dev": "npm run dev --prefix etal_client",
+        "build": "npm run build --prefix etal_client",
+        "lint": "npm run lint --prefix etal_client"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/cheepsahoy/etAL.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/cheepsahoy/etAL/issues"
+    },
+    "homepage": "https://github.com/cheepsahoy/etAL#readme"
+}
