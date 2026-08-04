@@ -1,9 +1,10 @@
 import * as d3 from 'd3'
-import {useCallback, useRef, useEffect} from 'react'
+import {useCallback, useMemo, useRef, useEffect} from 'react'
 import useNetworkGraphContext from '../../hooks/useNetworkGraphContext'
 import NetworkLoadingOverlay from './NetworkLoadingOverlay'
-import {ActionIcon, Group, Tooltip} from '@mantine/core'
+import {ActionIcon, Group, Tooltip, useMantineTheme} from '@mantine/core'
 import {Maximize2, Minus, Plus} from 'lucide-react'
+import {getEtalSemanticColors} from '../../theme'
 
 //
 function nodeAndLinkMaker(data) {
@@ -124,6 +125,8 @@ function NetworkGraph({isCitationMenuOpen, citationMenuWidth}) {
     const cameraLayerRef = useRef()
     const graphBoundsRef = useRef()
     const drawerStateRef = useRef({isOpen: isCitationMenuOpen, width: citationMenuWidth})
+    const theme = useMantineTheme()
+    const graphColors = useMemo(() => getEtalSemanticColors(theme).graph, [theme])
 
     drawerStateRef.current = {isOpen: isCitationMenuOpen, width: citationMenuWidth}
 
@@ -224,7 +227,8 @@ function NetworkGraph({isCitationMenuOpen, citationMenuWidth}) {
         //the + 1 transformation is necessary bc centrality score very likely includes 0s. Whenever the scales are called add + 1 to their check
         const correctedDomainValue = d3.extent(nodes, d => d.centrality_score + 1)
 
-        const colorScale = d3.scaleSequentialLog(d3.interpolatePlasma).domain(correctedDomainValue)
+        const nodeInterpolator = d3.piecewise(d3.interpolateRgb, graphColors.nodePalette)
+        const colorScale = d3.scaleSequentialLog(nodeInterpolator).domain(correctedDomainValue)
 
         const sizeScale = d3.scaleLog().domain(correctedDomainValue).range([smallestNode, largestNode]) //this is a "magic number" bc I decided that this range from 10 and 100 looks nice
 
@@ -242,7 +246,6 @@ function NetworkGraph({isCitationMenuOpen, citationMenuWidth}) {
 
         const link = zoomLayer
             .append('g')
-            .attr('stroke', '#999')
             .attr('stroke-width', 1.5)
             .selectAll('.link')
             .data(resolvedLinks)
@@ -298,7 +301,7 @@ function NetworkGraph({isCitationMenuOpen, citationMenuWidth}) {
             simulation.stop()
             svg.on('.zoom', null)
         }
-    }, [data, fitGraph])
+    }, [data, fitGraph, graphColors])
 
     useEffect(() => {
         if (!cameraLayerRef.current) return
