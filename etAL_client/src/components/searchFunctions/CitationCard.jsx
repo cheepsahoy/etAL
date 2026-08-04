@@ -1,5 +1,6 @@
 import etALSearch from "../../../../OA_middleWare/etAL/etALSearch";
 import useNetworkGraphContext from "../../hooks/useNetworkGraphContext";
+import { Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
 
 function CitationCard({ citationObj, setSearchResults }) {
   const { loadData } = useNetworkGraphContext();
@@ -35,35 +36,23 @@ function CitationCard({ citationObj, setSearchResults }) {
   }
 
   return (
-    <div
-      className="selection"
-      style={{ display: "flex", flexDirection: "row" }}
-    >
-      <div
-        className="citationCard"
-        id={template.id}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          borderStyle: "solid",
-          margin: "0",
-          gap: "0",
-          padding: "0",
-        }}
-      >
-        <h4 style={{ marginBottom: "0" }}>{template.title}</h4>
-        <p style={{ marginTop: "0", marginBottom: "0", fontStyle: "italic" }}>
+    <Paper id={template.id} p="sm" radius="md" withBorder>
+      <Stack gap={4}>
+        <Title order={3} size="sm">{template.title}</Title>
+        <Text size="xs" fs="italic" c="dimmed">
           {template.author}
-        </p>
-        <p style={{ marginTop: "5px", marginBottom: "0" }}>
+        </Text>
+        <Text size="xs" c="dimmed">
           {template.pubDate}, {template.source}, {template.doi}, cited by:{" "}
           {template.citationsCount}
-        </p>
-      </div>
-      <button id={template.id} onClick={clickHandler}>
-        Visualize this Article
-      </button>
-    </div>
+        </Text>
+        <Group justify="flex-end" mt="xs">
+          <Button size="xs" variant="light" onClick={clickHandler}>
+            Visualize article
+          </Button>
+        </Group>
+      </Stack>
+    </Paper>
   );
 }
 

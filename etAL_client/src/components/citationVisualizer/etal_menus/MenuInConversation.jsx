@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import MenuInConversationResultsPage from "./MenuInConversationResultsPage";
 import useNetworkGraphContext from "../../../hooks/useNetworkGraphContext";
+import { Paper, Title } from "@mantine/core";
 
 function arraySubdivider(array) {
   const subdivdedArray = [];
@@ -40,22 +41,16 @@ function MenuInConversation({ oracleMode }) {
   }, [data, oracleMode]);
 
   return (
-    <div className="menuInConversation" style={{ border: "5px solid black" }}>
-      <p>
-        <u>
-          {oracleMode ? (
-            <b> Oracle Conversation Cites</b>
-          ) : (
-            <b> Internal Conversation Cites</b>
-          )}
-        </u>
-      </p>
+    <Paper component="section" p="md" radius="md" withBorder>
+      <Title order={3} size="sm" mb="sm">
+        {oracleMode ? "Oracle conversation cites" : "Internal conversation cites"}
+      </Title>
       <MenuInConversationResultsPage
         pageNumber={pageNumber}
         setPageNumber={setPageNumber}
         subData={subdivdedArray}
       />
-    </div>
+    </Paper>
   );
 }
 

@@ -1,4 +1,5 @@
 import useNetworkGraphContext from "../../../hooks/useNetworkGraphContext";
+import { Button, Group, Paper, Text } from "@mantine/core";
 function lastNameExtractor(string) {
   const regex = /\b(\w+)$/;
   const match = string.match(regex);
@@ -40,17 +41,15 @@ function MenuInConversationCard({ data }) {
     const payload = data.data;
 
     return (
-      <div id={uniqueID}>
-        <p>{payload}</p>
-      </div>
+      <Text id={uniqueID} ta="center" size="sm" c="dimmed" py="sm">
+        {payload}
+      </Text>
     );
   } else {
     const uniqueID = data.id;
     const citationCount = data.centrality_score;
     const title = data.title;
-    const year = data.pubDate;
     const doi = data.doi;
-    const source = data.source;
 
     const authorArray = Object.keys(data.authors);
     const finalName = finalAuthorName(authorArray);
@@ -61,12 +60,15 @@ function MenuInConversationCard({ data }) {
     }
 
     return (
-      <div id={uniqueID}>
-        <p>
+      <Paper id={uniqueID} p="sm" radius="md" withBorder>
+        <Text size="sm" mb="sm">
           {citationCount} articles, citing {title}, by {finalName}
-        </p>
-        <button onClick={buttonHandler}>Locate in Graph</button>
-        <button
+        </Text>
+        <Group gap="xs">
+        <Button size="xs" variant="light" onClick={buttonHandler}>Locate in graph</Button>
+        <Button
+          size="xs"
+          variant="subtle"
           onClick={() => {
             if (doi === "No DOI on record") {
               const googleSearch = "https://www.google.com/search?q=";
@@ -78,9 +80,10 @@ function MenuInConversationCard({ data }) {
             }
           }}
         >
-          Find in New Page
-        </button>
-      </div>
+          Open article
+        </Button>
+        </Group>
+      </Paper>
     );
   }
 }

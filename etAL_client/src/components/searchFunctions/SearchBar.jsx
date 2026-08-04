@@ -3,8 +3,9 @@ import SuggestionList from "./SuggestionList";
 import { useState } from "react";
 import utils from "../../frontEndUtils/utils";
 import { Search } from "lucide-react";
+import { Box, TextInput } from "@mantine/core";
 
-function SearchBar({ setEtalDataGraphRender }) {
+function SearchBar() {
   const [searchResults, setSearchResults] = useState({
     waiting: true,
     id: null,
@@ -21,22 +22,22 @@ function SearchBar({ setEtalDataGraphRender }) {
   }
 
   return (
-    <div className="searchArea">
-      <div className="searchBar">
-        <Search size={28} color="#ffffff" strokeWidth={1} />
-        <input
-          id="articleSearch"
-          type="text"
-          placeholder="Search by Article Title"
-          onChange={searchHandle}
-        />
-        <button></button>
-      </div>
+    <Box className="searchArea">
+      <TextInput
+        id="articleSearch"
+        aria-label="Search by article title"
+        placeholder="Search by article title"
+        leftSection={<Search size={18} strokeWidth={1.5} />}
+        radius="xl"
+        size="md"
+        variant="filled"
+        onChange={searchHandle}
+      />
       <SuggestionList
         searchResults={searchResults}
         setSearchResults={setSearchResults}
       />
-    </div>
+    </Box>
   );
 }
 

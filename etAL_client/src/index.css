@@ -3,83 +3,64 @@
 body {
   margin: 0;
   padding: 0;
-  height: 100%;
-  width: 100%;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #0e0d12;
+  color: #f5f1fa;
+  font-family: Inter, sans-serif;
 }
 
-/*
----The NavBar--
-*/
+#root {
+  min-height: 100vh;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.appShell {
+  min-height: 100vh;
+}
+
 .navBar {
-  margin: 1rem;
-  position: sticky;
-  background-color: #8fbedf;
-  padding: 0.5rem;
+  position: relative;
+  z-index: 5;
+}
+
+.searchArea {
+  position: relative;
+}
+
+.searchSuggestions {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 0.5rem);
+  box-sizing: border-box;
   width: 100%;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
+  max-height: min(70vh, 520px);
+  overflow-y: auto;
 }
 
-.navContent {
-  margin: 0;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-start;
+.visualizerShell {
+  display: grid;
+  min-height: calc(100vh - 5.5rem);
+  place-items: center;
 }
-
-.leftBar {
-  display: flex;
-  flex-direction: column;
-}
-
-.slogan {
-  font-family: Inconsolata, monospace;
-  margin: 0;
-  font-size: 20px;
-}
-
-.img_and_name {
-  display: flex;
-  align-items: center;
-}
-
-.rightBar {
-  align-self: flex-end;
-  margin-bottom: 1px;
-}
-
-.searchBar {
-  display: flex;
-  justify-content: center;
-  margin-top: 1rem;
-  border-radius: 10px;
-  height: 2.5rem;
-  padding: 0 15px;
-  box-shadow: 0px 0px 8px #ddd;
-}
-
-.searchBar input {
-  width: 85%;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  border-radius: 8px;
-  border: thin;
-}
-
-.searchBar button {
-  padding: 1rem 1rem;
-  margin: 2px;
-  border-radius: 8px;
-}
-
-/*
---The Visualizer Space---
-*/
 
 .visualization {
   position: relative;
+  display: flex;
+  width: min(100%, 1100px);
+  height: calc(100vh - 6.5rem);
+  min-height: 420px;
+  align-items: center;
+  justify-content: center;
+}
+
+.visualization > div:not(.networkLoadingOverlay) {
+  color: rgb(255 255 255 / 45%);
+  font-size: 0.9rem;
 }
 
 .networkLoadingOverlay {
@@ -139,4 +120,15 @@ body {
   fill-opacity: 1;
   fill: red !important;
   stroke: white;
+}
+
+@media (max-width: 600px) {
+  .visualizerShell {
+    min-height: calc(100vh - 4.75rem);
+  }
+
+  .visualization {
+    height: calc(100vh - 5.5rem);
+  }
+
 }

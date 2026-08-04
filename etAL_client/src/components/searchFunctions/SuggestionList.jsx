@@ -1,5 +1,6 @@
 import CitationCard from "./CitationCard";
 import etALSearch from "../../../../OA_middleWare/etAL/etALSearch";
+import { Paper, Stack, Text } from "@mantine/core";
 
 function arrayExtract(object) {
   let smallerArray = [];
@@ -16,23 +17,29 @@ function arrayExtract(object) {
 
 function SuggestionList({ searchResults, setSearchResults }) {
   if (searchResults.waiting) {
-    return <p>Waiting for Querry...</p>;
+    return null;
   } else if (searchResults.id) {
-    return <p>Enjoy exploring {searchResults.id}</p>;
+    return (
+      <Paper className="searchSuggestions" p="md" radius="md" shadow="lg">
+        <Text size="sm">Enjoy exploring {searchResults.id}</Text>
+      </Paper>
+    );
   } else {
     const renderData = arrayExtract(searchResults);
 
     return (
-      <ul>
+      <Paper className="searchSuggestions" p="xs" radius="md" shadow="lg">
+        <Stack gap="xs">
         {renderData.map((citation) => (
-          <li key={etALSearch._extractOpenAlexID(citation.id)}>
+          <div key={etALSearch._extractOpenAlexID(citation.id)}>
             <CitationCard
               citationObj={citation}
               setSearchResults={setSearchResults}
             />
-          </li>
+          </div>
         ))}
-      </ul>
+        </Stack>
+      </Paper>
     );
   }
 }

@@ -1,8 +1,9 @@
 import MenuInConversationCard from './MenuInConversationCard'
+import { Button, Group, Stack, Text } from '@mantine/core'
 
 function MenuInConversationResultsPage({pageNumber, setPageNumber, subData}) {
     if (subData.length === 0) {
-        return <p>Waiting on data...</p>
+        return <Text size="sm" c="dimmed">Waiting on data...</Text>
     } else {
         const lastPageIndex = subData.length - 1
         const relevantPage = subData[Math.min(pageNumber, lastPageIndex)]
@@ -20,36 +21,26 @@ function MenuInConversationResultsPage({pageNumber, setPageNumber, subData}) {
         }
 
         return (
-            <div
-                className="inConversationResults"
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                }}>
-                <ul>
+            <Stack gap="sm">
+                <Stack gap="xs">
                     {relevantPage.map(article => {
-                        const uniqueID = article.id
+                        const uniqueID = article.id ?? 'end-results'
                         return (
-                            <li key={uniqueID}>
+                            <div key={uniqueID}>
                                 <MenuInConversationCard data={article} />
-                            </li>
+                            </div>
                         )
                     })}
-                </ul>
-                <div
-                    className="menuButtons"
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                    }}>
-                    <button onClick={backWardsHandler} disabled={pageNumber === 0}>
+                </Stack>
+                <Group grow>
+                    <Button variant="default" size="xs" onClick={backWardsHandler} disabled={pageNumber === 0}>
                         Page Back
-                    </button>
-                    <button onClick={forwardsHandler} disabled={pageNumber >= lastPageIndex}>
+                    </Button>
+                    <Button variant="default" size="xs" onClick={forwardsHandler} disabled={pageNumber >= lastPageIndex}>
                         Page Forward
-                    </button>
-                </div>
-            </div>
+                    </Button>
+                </Group>
+            </Stack>
         )
     }
 }

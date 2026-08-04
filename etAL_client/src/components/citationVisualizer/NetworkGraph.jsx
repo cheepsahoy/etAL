@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import {useRef, useEffect, useMemo} from 'react'
+import {useRef, useEffect} from 'react'
 import useNetworkGraphContext from '../../hooks/useNetworkGraphContext'
 import NetworkLoadingOverlay from './NetworkLoadingOverlay'
 
@@ -211,7 +211,7 @@ function NetworkGraph() {
                 'radial',
                 d3
                     .forceRadial(d => sizes.radiusDictionary[d.id], width / 2, height / 2)
-                    .strength(d => {
+                    .strength(() => {
                         return 0.9 //could be rendered more dynamically?
                     }),
             )
@@ -328,16 +328,7 @@ function NetworkGraph() {
     }, [selectedArticle])
 
     return (
-        <div
-            style={{
-                width: '100%',
-                height: '800px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                flex: '4',
-            }}
-            className="visualization">
+        <div className="visualization">
             {loading ? (
                 <NetworkLoadingOverlay />
             ) : !data ? (
