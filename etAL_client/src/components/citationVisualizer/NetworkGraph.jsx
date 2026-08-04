@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import {useRef, useEffect, useMemo} from 'react'
 import useNetworkGraphContext from '../../hooks/useNetworkGraphContext'
+import NetworkLoadingOverlay from './NetworkLoadingOverlay'
 
 //
 function nodeAndLinkMaker(data) {
@@ -338,9 +339,7 @@ function NetworkGraph() {
             }}
             className="visualization">
             {loading ? (
-                <div>
-                    <p>Loading your graph, please wait!</p>
-                </div>
+                <NetworkLoadingOverlay />
             ) : !data ? (
                 <div>
                     <p>Waiting on selection...</p>

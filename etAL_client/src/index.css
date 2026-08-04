@@ -78,6 +78,29 @@ body {
 --The Visualizer Space---
 */
 
+.visualization {
+  position: relative;
+}
+
+.networkLoadingOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(255 255 255 / 60%);
+  cursor: wait;
+}
+
+.networkLoadingMessage {
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 90%);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
+  font-family: Inter, sans-serif;
+}
+
 .node {
   cursor: pointer;
   stroke: #3182bd;
