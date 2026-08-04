@@ -1,10 +1,26 @@
 import MenuInConversation from "./etal_menus/MenuInConversation";
 import { PanelRightOpen } from "lucide-react";
 import { Affix, Button, Drawer, Tabs, Text, Title } from "@mantine/core";
-import { useState } from "react";
+import { useEffect, useRef } from "react";
 
-function NetworkMenus() {
-  const [isOpen, setIsOpen] = useState(false);
+function NetworkMenus({ isOpen, setIsOpen, onWidthChange }) {
+  const drawerRootRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const drawer = drawerRootRef.current?.querySelector(".citationDrawer");
+    if (!drawer) return undefined;
+
+    function reportWidth() {
+      onWidthChange(drawer.getBoundingClientRect().width);
+    }
+
+    reportWidth();
+    const observer = new ResizeObserver(reportWidth);
+    observer.observe(drawer);
+    return () => observer.disconnect();
+  }, [isOpen, onWidthChange]);
 
   return (
     <>
@@ -22,11 +38,22 @@ function NetworkMenus() {
       </Affix>
 
       <Drawer
+        ref={drawerRootRef}
         opened={isOpen}
         onClose={() => setIsOpen(false)}
         position="right"
-        size="md"
+        size="min(440px, 88vw)"
         padding="lg"
+        withOverlay={false}
+        trapFocus={false}
+        lockScroll={false}
+        returnFocus={false}
+        closeOnClickOutside={false}
+        classNames={{
+          content: "citationDrawer",
+          header: "citationDrawerHeader",
+          body: "citationDrawerBody",
+        }}
         title={
           <div>
             <Text c="milkyPurple.4" fw={700} size="xs" tt="uppercase">
@@ -37,7 +64,6 @@ function NetworkMenus() {
             </Title>
           </div>
         }
-        overlayProps={{ backgroundOpacity: 0.45, blur: 2 }}
       >
         <Tabs defaultValue="oracle" keepMounted={false}>
           <Tabs.List grow mb="md">

@@ -1,7 +1,9 @@
 import * as d3 from 'd3'
-import {useRef, useEffect} from 'react'
+import {useCallback, useRef, useEffect} from 'react'
 import useNetworkGraphContext from '../../hooks/useNetworkGraphContext'
 import NetworkLoadingOverlay from './NetworkLoadingOverlay'
+import {ActionIcon, Group, Tooltip} from '@mantine/core'
+import {Maximize2, Minus, Plus} from 'lucide-react'
 
 //
 function nodeAndLinkMaker(data) {
@@ -116,11 +118,49 @@ function optimalSizeCalculator(nodes, buffer) {
     }
 }
 
-function NetworkGraph() {
+function NetworkGraph({isCitationMenuOpen, citationMenuWidth}) {
     const svgRef = useRef()
+    const zoomBehaviorRef = useRef()
+    const cameraLayerRef = useRef()
+    const graphBoundsRef = useRef()
+    const drawerStateRef = useRef({isOpen: isCitationMenuOpen, width: citationMenuWidth})
+
+    drawerStateRef.current = {isOpen: isCitationMenuOpen, width: citationMenuWidth}
 
     const {data, selectedArticle, setArticle, loading} = useNetworkGraphContext()
     console.log('before render', selectedArticle)
+
+    const fitGraph = useCallback((animate = true) => {
+        if (!svgRef.current || !zoomBehaviorRef.current || !graphBoundsRef.current) return
+
+        const svgElement = svgRef.current
+        const svg = d3.select(svgElement)
+        const viewport = svgElement.getBoundingClientRect()
+        const viewportWidth = Math.max(viewport.width, 1)
+        const viewportHeight = Math.max(viewport.height, 1)
+        const navBottom = document.querySelector('.navBar')?.getBoundingClientRect().bottom ?? 0
+        const drawer = drawerStateRef.current
+        const drawerWidth = drawer.isOpen ? drawer.width : 0
+        const margin = 24
+        const controlsClearance = 64
+        const availableWidth = Math.max(viewportWidth - drawerWidth - margin * 2, 1)
+        const availableHeight = Math.max(viewportHeight - navBottom - margin - controlsClearance, 1)
+        const bounds = graphBoundsRef.current
+        const scale = Math.min(
+            8,
+            Math.max(0.1, Math.min(availableWidth / bounds.width, availableHeight / bounds.height)),
+        )
+        const visibleCenterX = margin + availableWidth / 2
+        const visibleCenterY = navBottom + availableHeight / 2
+        const cameraOffsetX = -drawerWidth / 2
+        const translateX = visibleCenterX - bounds.centerX * scale - cameraOffsetX
+        const translateY = visibleCenterY - bounds.centerY * scale
+        const transform = d3.zoomIdentity.translate(translateX, translateY).scale(scale)
+
+        svg.attr('viewBox', `0 0 ${viewportWidth} ${viewportHeight}`)
+        const target = animate ? svg.transition().duration(220) : svg
+        target.call(zoomBehaviorRef.current.transform, transform)
+    }, [])
 
     //useEffect for initial rendering
     useEffect(() => {
@@ -142,6 +182,14 @@ function NetworkGraph() {
         const sizes = optimalSizeCalculator(nodes, nodeBufferSize)
         const width = sizes.width
         const height = sizes.height
+        const viewBoxPadding = largestNode + nodeBufferSize
+
+        graphBoundsRef.current = {
+            width: width + viewBoxPadding * 2,
+            height: height + viewBoxPadding * 2,
+            centerX: width / 2,
+            centerY: height / 2,
+        }
 
         console.log('caluclating width and height:', width, height)
 
@@ -156,10 +204,22 @@ function NetworkGraph() {
             .select(svgRef.current)
             .attr('width', '100%')
             .attr('height', '100%')
-            .attr('viewBox', `0 0 ${width * 2} ${height * 2}`)
+            .attr('preserveAspectRatio', 'none')
 
         //clear previous content on new render
         svg.selectAll('*').remove()
+
+        const cameraLayer = svg.append('g').attr('class', 'cameraLayer')
+        const zoomLayer = cameraLayer.append('g').attr('class', 'zoomLayer')
+        cameraLayerRef.current = cameraLayer
+        const zoomBehavior = d3
+            .zoom()
+            .scaleExtent([0.25, 8])
+            .on('zoom', event => zoomLayer.attr('transform', event.transform))
+
+        zoomBehaviorRef.current = zoomBehavior
+        svg.call(zoomBehavior).on('dblclick.zoom', null)
+        fitGraph(false)
 
         //the + 1 transformation is necessary bc centrality score very likely includes 0s. Whenever the scales are called add + 1 to their check
         const correctedDomainValue = d3.extent(nodes, d => d.centrality_score + 1)
@@ -180,7 +240,7 @@ function NetworkGraph() {
             return fixedEntry
         })
 
-        const link = svg
+        const link = zoomLayer
             .append('g')
             .attr('stroke', '#999')
             .attr('stroke-width', 1.5)
@@ -190,7 +250,7 @@ function NetworkGraph() {
             .attr('class', d => `link source-${d.source} target-${d.target}`)
             .attr('pointer-events', 'none')
 
-        const node = svg
+        const node = zoomLayer
             .append('g')
             .selectAll('.node')
             .data(nodes)
@@ -234,8 +294,29 @@ function NetworkGraph() {
                 .attr('y2', d => d.target.y)
         })
 
-        return () => simulation.stop()
-    }, [data])
+        return () => {
+            simulation.stop()
+            svg.on('.zoom', null)
+        }
+    }, [data, fitGraph])
+
+    useEffect(() => {
+        if (!cameraLayerRef.current) return
+        const drawerWidth = isCitationMenuOpen ? citationMenuWidth : 0
+        cameraLayerRef.current.attr('transform', `translate(${-drawerWidth / 2} 0)`)
+    }, [citationMenuWidth, isCitationMenuOpen])
+
+    useEffect(() => {
+        const svgElement = svgRef.current
+        const navElement = document.querySelector('.navBar')
+        if (!svgElement) return undefined
+
+        const observer = new ResizeObserver(() => fitGraph(false))
+        observer.observe(svgElement)
+        if (navElement) observer.observe(navElement)
+
+        return () => observer.disconnect()
+    }, [data, fitGraph])
 
     // Keep graph interaction independent from whether an article is selected.
     useEffect(() => {
@@ -327,6 +408,18 @@ function NetworkGraph() {
         }
     }, [selectedArticle])
 
+    function changeZoom(scaleFactor) {
+        if (!zoomBehaviorRef.current) return
+        d3.select(svgRef.current)
+            .transition()
+            .duration(180)
+            .call(zoomBehaviorRef.current.scaleBy, scaleFactor)
+    }
+
+    function resetZoom() {
+        fitGraph()
+    }
+
     return (
         <div className="visualization">
             {loading ? (
@@ -344,6 +437,25 @@ function NetworkGraph() {
                     height: '100%',
                 }}
             />
+            {data && (
+                <Group className="graphZoomControls" gap={4}>
+                    <Tooltip label="Zoom out">
+                        <ActionIcon variant="default" aria-label="Zoom out" onClick={() => changeZoom(0.75)}>
+                            <Minus size={16} />
+                        </ActionIcon>
+                    </Tooltip>
+                    <Tooltip label="Reset view">
+                        <ActionIcon variant="default" aria-label="Reset graph view" onClick={resetZoom}>
+                            <Maximize2 size={15} />
+                        </ActionIcon>
+                    </Tooltip>
+                    <Tooltip label="Zoom in">
+                        <ActionIcon variant="default" aria-label="Zoom in" onClick={() => changeZoom(1.25)}>
+                            <Plus size={16} />
+                        </ActionIcon>
+                    </Tooltip>
+                </Group>
+            )}
         </div>
     )
 }
