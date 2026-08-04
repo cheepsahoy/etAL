@@ -1,26 +1,22 @@
 import MenuInConversationCard from "./MenuInConversationCard";
 
-function MenuInConversationResultsPage({ pageNumber, setPageNunber, subData }) {
+function MenuInConversationResultsPage({ pageNumber, setPageNumber, subData }) {
   if (subData.length === 0) {
     return <p>Waiting on data...</p>;
   } else {
-    const maxPages = subData.length;
-    const releventPage = subData[pageNumber];
+    const lastPageIndex = subData.length - 1;
+    const relevantPage = subData[Math.min(pageNumber, lastPageIndex)];
 
     function backWardsHandler() {
       if (pageNumber === 0) {
         return;
       } else {
-        setPageNunber((prev) => prev - 1);
+        setPageNumber((prev) => Math.max(prev - 1, 0));
       }
     }
 
     function forwardsHandler() {
-      if (pageNumber === maxPages) {
-        return;
-      } else {
-        setPageNunber((prev) => prev + 1);
-      }
+      setPageNumber((prev) => Math.min(prev + 1, lastPageIndex));
     }
 
     return (
@@ -32,7 +28,7 @@ function MenuInConversationResultsPage({ pageNumber, setPageNunber, subData }) {
         }}
       >
         <ul>
-          {releventPage.map((article) => {
+          {relevantPage.map((article) => {
             const uniqueID = article.id;
             return (
               <li key={uniqueID}>
@@ -48,8 +44,15 @@ function MenuInConversationResultsPage({ pageNumber, setPageNunber, subData }) {
             flexDirection: "row",
           }}
         >
-          <button onClick={backWardsHandler}>Page Back</button>
-          <button onClick={forwardsHandler}>Page Forward</button>
+          <button onClick={backWardsHandler} disabled={pageNumber === 0}>
+            Page Back
+          </button>
+          <button
+            onClick={forwardsHandler}
+            disabled={pageNumber >= lastPageIndex}
+          >
+            Page Forward
+          </button>
         </div>
       </div>
     );

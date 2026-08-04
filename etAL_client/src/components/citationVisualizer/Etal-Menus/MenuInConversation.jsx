@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import MenuInConversationResultsPage from "./MenuInConversationResultsPage";
 import useNetworkGraphContext from "../../../hooks/useNetworkGraphContext";
 
@@ -33,7 +33,11 @@ function MenuInConversation({ oracleMode }) {
       }
       return arraySubdivider(newArray);
     }
-  }, [data]);
+  }, [data, oracleMode]);
+
+  useEffect(() => {
+    setPageNumber(0);
+  }, [data, oracleMode]);
 
   return (
     <div className="menuInConversation" style={{ border: "5px solid black" }}>
@@ -48,7 +52,7 @@ function MenuInConversation({ oracleMode }) {
       </p>
       <MenuInConversationResultsPage
         pageNumber={pageNumber}
-        setPageNunber={setPageNumber}
+        setPageNumber={setPageNumber}
         subData={subdivdedArray}
       />
     </div>
