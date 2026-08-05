@@ -1,6 +1,6 @@
 import etALSearch from "../../../../OA_middleWare/etAL/etALSearch";
 import SuggestionList from "./SuggestionList";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import utils from "../../frontEndUtils/utils";
 import { Search } from "lucide-react";
 import { Box, TextInput } from "@mantine/core";
@@ -9,15 +9,41 @@ function SearchBar() {
   const [searchResults, setSearchResults] = useState({
     waiting: true,
     id: null,
+    results: [],
   });
-  const debounceAutoComplete = utils.debounceAsync(etALSearch.autoComplete);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchMode, setSearchMode] = useState("autocomplete");
+  const [deepSearchLoading, setDeepSearchLoading] = useState(false);
+  const debounceAutoComplete = useMemo(
+    () => utils.debounceAsync(etALSearch.autoComplete),
+    []
+  );
 
   async function searchHandle(input) {
-    let inputValue = input.target.value;
-    if (inputValue.length !== 0) {
+    const inputValue = input.target.value;
+    setSearchTerm(inputValue);
+    setSearchMode("autocomplete");
+
+    if (inputValue.trim().length !== 0) {
       const resp = await debounceAutoComplete(inputValue);
-      console.log(resp);
       setSearchResults(resp);
+    } else {
+      setSearchResults({ waiting: true, id: null, results: [] });
+    }
+  }
+
+  async function searchDeeper() {
+    if (searchTerm.trim().length === 0) {
+      return;
+    }
+
+    setDeepSearchLoading(true);
+    try {
+      const resp = await etALSearch.searchDeeper(searchTerm);
+      setSearchMode("deep");
+      setSearchResults(resp);
+    } finally {
+      setDeepSearchLoading(false);
     }
   }
 
@@ -36,6 +62,9 @@ function SearchBar() {
       <SuggestionList
         searchResults={searchResults}
         setSearchResults={setSearchResults}
+        searchMode={searchMode}
+        onSearchDeeper={searchDeeper}
+        deepSearchLoading={deepSearchLoading}
       />
     </Box>
   );

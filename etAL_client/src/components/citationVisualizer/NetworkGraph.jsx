@@ -413,10 +413,7 @@ function NetworkGraph({isCitationMenuOpen, citationMenuWidth}) {
 
     function changeZoom(scaleFactor) {
         if (!zoomBehaviorRef.current) return
-        d3.select(svgRef.current)
-            .transition()
-            .duration(180)
-            .call(zoomBehaviorRef.current.scaleBy, scaleFactor)
+        d3.select(svgRef.current).transition().duration(180).call(zoomBehaviorRef.current.scaleBy, scaleFactor)
     }
 
     function resetZoom() {
@@ -425,13 +422,7 @@ function NetworkGraph({isCitationMenuOpen, citationMenuWidth}) {
 
     return (
         <div className="visualization">
-            {loading ? (
-                <NetworkLoadingOverlay />
-            ) : !data ? (
-                <div>
-                    <p>Waiting on selection...</p>
-                </div>
-            ) : null}
+            {loading ? <NetworkLoadingOverlay /> : null}
 
             <svg
                 ref={svgRef}

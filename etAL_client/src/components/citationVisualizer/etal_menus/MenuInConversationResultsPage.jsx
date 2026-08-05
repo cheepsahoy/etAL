@@ -1,7 +1,7 @@
 import MenuInConversationCard from './MenuInConversationCard'
 import { Button, Group, Stack, Text } from '@mantine/core'
 
-function MenuInConversationResultsPage({pageNumber, setPageNumber, subData}) {
+function MenuInConversationResultsPage({pageNumber, setPageNumber, subData, scoreMode = 'citations'}) {
     if (subData.length === 0) {
         return <Text size="sm" c="dimmed">Waiting on data...</Text>
     } else {
@@ -27,7 +27,7 @@ function MenuInConversationResultsPage({pageNumber, setPageNumber, subData}) {
                         const uniqueID = article.id ?? 'end-results'
                         return (
                             <div key={uniqueID}>
-                                <MenuInConversationCard data={article} />
+                                <MenuInConversationCard data={article} scoreMode={scoreMode} />
                             </div>
                         )
                     })}

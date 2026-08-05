@@ -1,7 +1,7 @@
-import {useState, useMemo, useEffect} from 'react'
-import MenuInConversationResultsPage from './MenuInConversationResultsPage'
-import useNetworkGraphContext from '../../../hooks/useNetworkGraphContext'
+import {useEffect, useMemo, useState} from 'react'
 import {Paper, Title} from '@mantine/core'
+import useNetworkGraphContext from '../../../hooks/useNetworkGraphContext'
+import MenuInConversationResultsPage from './MenuInConversationResultsPage'
 
 function arraySubdivider(array) {
     const subdivdedArray = []
@@ -21,16 +21,17 @@ function arraySubdivider(array) {
     return subdivdedArray
 }
 
-function MenuInConversation() {
+function MenuOracles() {
     const [pageNumber, setPageNumber] = useState(0)
     const {data} = useNetworkGraphContext()
     const subdivdedArray = useMemo(() => {
         if (data === null) {
             return []
-        } else {
-            const newArray = [...data.sorted_citation_conversation]
-            return arraySubdivider(newArray)
         }
+
+        const newArray = [...data.sorted_citation_conversation]
+        newArray.sort((a, b) => b.oracle_score - a.oracle_score)
+        return arraySubdivider(newArray)
     }, [data])
 
     useEffect(() => {
@@ -40,15 +41,16 @@ function MenuInConversation() {
     return (
         <Paper component="section" p="md" radius="md" withBorder>
             <Title order={3} size="sm" mb="sm">
-                Ordered by Citation Count
+                Ordered by Oracle Score
             </Title>
             <MenuInConversationResultsPage
                 pageNumber={pageNumber}
                 setPageNumber={setPageNumber}
                 subData={subdivdedArray}
+                scoreMode="oracle"
             />
         </Paper>
     )
 }
 
-export default MenuInConversation
+export default MenuOracles

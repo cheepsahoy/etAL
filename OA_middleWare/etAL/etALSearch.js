@@ -35,6 +35,33 @@ async function autoComplete(input) {
     return await OpenAlexAPI.simpleSearchByName(input)
 }
 
+function workToAutocompleteResult(work) {
+    const authorNames = (work.authorships ?? []).map(authorship => authorship.author?.display_name).filter(Boolean)
+
+    return {
+        id: work.id,
+        external_id: work.doi,
+        display_name: work.title,
+        entity_type: 'work',
+        cited_by_count: work.cited_by_count,
+        works_count: null,
+        hint: authorNames.join(', '),
+    }
+}
+
+async function searchDeeper(input) {
+    const response = await OpenAlexAPI.deepSearchByQuerry(input, 1)
+
+    return {
+        ...response,
+        results: response.results.map(workToAutocompleteResult),
+    }
+}
+
+async function getWorkByOpenAlexID(openAlexID) {
+    return await OpenAlexAPI.getSingleWorkByOpenAlexID(openAlexID)
+}
+
 function _extractOpenAlexID(openAlex_URL) {
     const regex = /(W\d+)/gm
     const alexID = openAlex_URL.match(regex)
@@ -43,6 +70,8 @@ function _extractOpenAlexID(openAlex_URL) {
 
 export default {
     autoComplete,
+    searchDeeper,
+    getWorkByOpenAlexID,
     _extractOpenAlexID,
     deepSearchManager,
 }

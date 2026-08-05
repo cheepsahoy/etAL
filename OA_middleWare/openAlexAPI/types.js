@@ -45,6 +45,23 @@
 //-----OpenAlexAPI-----
 
 /**
+ * @typedef {object} OA_AutocompleteSearch
+ * @property {{count: integer, db_response_time_ms: integer, page: integer, per_page: integer}} meta
+ * @property {array<OA_AutocompleteResult>} results
+ */
+
+/**
+ * @typedef {object} OA_AutocompleteResult
+ * @property {string} id
+ * @property {string} external_id
+ * @property {string} display_name
+ * @property {string} entity_type
+ * @property {integer} cited_by_count
+ * @property {integer | null} works_count
+ * @property {string} hint
+ */
+
+/**
  * @typedef {object} OA_WorkSearch
  * @property {{
  * 'count': integer,

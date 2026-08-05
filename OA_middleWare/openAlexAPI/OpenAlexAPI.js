@@ -16,25 +16,21 @@ class OA_API {
     /**
      *
      * @param {string} searchQuerry
-     * @returns {Promise<OA_WorkSearch}
+     * @returns {Promise<OA_AutocompleteSearch>}
      */
     async simpleSearchByName(searchQuerry) {
-        let searchPath = 'works?&filter=title_and_abstract.search:'
-        let lowerSearch = searchQuerry.toLowerCase()
-        let searchParam = encodeURI(lowerSearch)
+        const searchParam = encodeURIComponent(searchQuerry.trim())
+        const searchPath = `autocomplete/works?q=${searchParam}`
 
-        let resp = await this._queryAPI('GET', searchPath + searchParam)
-        return resp
+        return await this._queryAPI('GET', searchPath)
     }
 
     async deepSearchByQuerry(searchQuerry, page = 1) {
-        let initialPatth = 'works?search='
-        let lowerSearch = searchQuerry.toLowerCase()
-        let encodedSearch = encodeURI(lowerSearch)
-        let finalPath = initialPatth + encodedSearch + '&per-page=100&page=' + page
+        const encodedSearch = encodeURIComponent(searchQuerry.trim())
+        const finalPath =
+            `works?select=${OA_API.SEARCH_WORK_FIELDS}&search=${encodedSearch}` + `&per-page=100&page=${page}`
 
-        const resp = await this._queryAPI('GET', finalPath)
-        return resp
+        return await this._queryAPI('GET', finalPath)
     }
 
     /**
@@ -44,8 +40,17 @@ class OA_API {
      */
     async getSingleWorkbyDOI(doi) {
         let doiURL = OA_API.OPEN_ALEX_DOI_URL + doi
-        let resp = await this._queryAPI('GET', 'works/' + doiURL)
+        let resp = await this._queryAPI('GET', `works/${doiURL}?select=${OA_API.CITATION_WORK_FIELDS}`)
         return resp
+    }
+
+    /**
+     * @param {string} openAlexID
+     * @returns {Promise<OA_WorkObject>}
+     */
+    async getSingleWorkByOpenAlexID(openAlexID) {
+        const extractedID = this._extractOpenAlexID(openAlexID)
+        return await this._queryAPI('GET', `works/${extractedID}?select=${OA_API.CITATION_WORK_FIELDS}`)
     }
 
     /**
@@ -59,7 +64,8 @@ class OA_API {
         for (const alexID of alexIDArray) {
             if (miniBuilder.length === 50) {
                 let pathConjoin = miniBuilder.join('|')
-                let finalPath = 'works?per-page=100&filter=openalex:' + pathConjoin
+                let finalPath =
+                    `works?per-page=100&select=${OA_API.OUTGOING_WORK_FIELDS}&filter=openalex:` + pathConjoin
                 let resp = await this._queryAPI('GET', finalPath)
                 let results = resp.results
                 finalProduct = finalProduct.concat(results)
@@ -70,7 +76,7 @@ class OA_API {
 
         if (miniBuilder.length > 0) {
             let pathConjoin = miniBuilder.join('|')
-            let finalPath = 'works?per-page=100&filter=openalex:' + pathConjoin
+            let finalPath = `works?per-page=100&select=${OA_API.OUTGOING_WORK_FIELDS}&filter=openalex:` + pathConjoin
             let resp = await this._queryAPI('GET', finalPath)
             let results = resp.results
             finalProduct = finalProduct.concat(results)
@@ -91,7 +97,7 @@ class OA_API {
         paramObj['&cursor='] = '*'
 
         let fullCites = []
-        let path = 'works?per-page=200&filter=cites:'
+        let path = `works?per-page=200&select=${OA_API.CITATION_WORK_FIELDS}&filter=cites:`
 
         let resp = await this._queryAPI('GET', path, paramObj)
         paramObj['&cursor='] = resp.meta.next_cursor
@@ -108,6 +114,22 @@ class OA_API {
     //-------------Static Values-----------------
     static OPEN_ALEX_URL = 'https://api.openalex.org/'
     static OPEN_ALEX_DOI_URL = 'https://doi.org/'
+    // OpenAlex select supports root-level fields only, so nested author and
+    // source details are requested through their complete parent objects.
+    static CITATION_WORK_FIELDS = [
+        'id',
+        'doi',
+        'title',
+        'publication_date',
+        'primary_location',
+        'authorships',
+        'referenced_works',
+        'cited_by_count',
+    ].join(',')
+    static OUTGOING_WORK_FIELDS = ['id', 'doi', 'title', 'publication_date', 'primary_location', 'authorships'].join(
+        ',',
+    )
+    static SEARCH_WORK_FIELDS = ['id', 'doi', 'title', 'authorships', 'cited_by_count'].join(',')
 
     //-------------Private Functions------------------
     /**
