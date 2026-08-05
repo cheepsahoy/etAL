@@ -14,6 +14,18 @@ const milkyPurple = [
     '#511798',
 ]
 
+const petrolSpace = [
+    '#e5f6f7',
+    '#c5e2e4',
+    '#97c1c5',
+    '#6c9da3',
+    '#477b83',
+    '#2e6069',
+    '#1c4650',
+    '#102f38',
+    '#081d24',
+    '#030e13',
+]
 const redNebula = [
     '#ffedf4',
     '#f6dbe4',
@@ -61,6 +73,7 @@ export const etalTheme = createTheme({
         plasmaCore,
         oracleGreen,
         redNebula,
+        petrolSpace,
     },
     primaryColor: 'milkyPurple',
     fontFamily: 'Inter, sans-serif',
@@ -104,16 +117,16 @@ export const etalTheme = createTheme({
 
 export function getEtalSemanticColors(theme) {
     return {
-        canvas: theme.colors.dark[9],
-        surface: theme.colors.dark[8],
-        surfaceStrong: theme.colors.dark[7],
-        border: theme.colors.dark[5],
-        text: theme.white,
-        textMuted: theme.colors.dark[2],
+        canvas: theme.colors.petrolSpace[8],
+        surface: theme.colors.petrolSpace[7],
+        surfaceStrong: theme.colors.petrolSpace[6],
+        border: theme.colors.petrolSpace[5],
+        text: theme.colors.petrolSpace[0],
+        textMuted: theme.colors.petrolSpace[2],
         graph: {
-            nodePalette: theme.colors.plasmaCore,
-            nodeOutline: theme.colors.milkyPurple[6],
-            link: theme.colors.dark[2],
+            nodePalette: theme.colors.plasmaCore.slice(2),
+            nodeOutline: theme.colors.petrolSpace[1],
+            link: theme.colors.petrolSpace[2],
             selectedLink: theme.colors.redNebula[4],
             citedNode: theme.colors.milkyPurple[3],
             citerNode: theme.colors.milkyPurple[6],

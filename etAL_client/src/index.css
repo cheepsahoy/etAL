@@ -1,182 +1,182 @@
-@import url("https://fonts.googleapis.com/css2?family=Inconsolata:wdth,wght@50,200..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poiret+One&family=Space+Grotesk:wght@300..700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wdth,wght@50,200..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poiret+One&family=Space+Grotesk:wght@300..700&display=swap');
 
 body {
-  margin: 0;
-  padding: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background: var(--etal-color-canvas);
-  color: var(--etal-color-text);
-  font-family: Inter, sans-serif;
-  overflow: hidden;
+    margin: 0;
+    padding: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    background: var(--etal-color-canvas);
+    color: var(--etal-color-text);
+    font-family: Inter, sans-serif;
+    overflow: hidden;
 }
 
 #root {
-  height: 100dvh;
+    height: 100dvh;
 }
 
 button,
 input {
-  font: inherit;
+    font: inherit;
 }
 
 .appShell {
-  position: relative;
-  height: 100dvh;
-  overflow: hidden;
+    position: relative;
+    height: 100dvh;
+    overflow: hidden;
 }
 
 .navBar {
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-  z-index: 5;
-  pointer-events: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 5;
+    pointer-events: none;
 }
 
 .searchArea {
-  position: relative;
-  pointer-events: auto;
+    position: relative;
+    pointer-events: auto;
 }
 
 .searchSuggestions {
-  position: absolute;
-  z-index: 10;
-  top: calc(100% + 0.5rem);
-  box-sizing: border-box;
-  width: 100%;
-  max-height: min(70vh, 520px);
-  overflow-y: auto;
+    position: absolute;
+    z-index: 10;
+    top: calc(100% + 0.5rem);
+    box-sizing: border-box;
+    width: 100%;
+    max-height: min(70vh, 520px);
+    overflow-y: auto;
 }
 
 .visualizerShell {
-  position: absolute;
-  inset: 0;
+    position: absolute;
+    inset: 0;
 }
 
 .visualization {
-  position: relative;
-  display: flex;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  align-items: center;
-  justify-content: center;
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    align-items: center;
+    justify-content: center;
 }
 
 .visualization svg {
-  cursor: grab;
-  touch-action: none;
+    cursor: grab;
+    touch-action: none;
 }
 
 .visualization svg:active {
-  cursor: grabbing;
+    cursor: grabbing;
 }
 
 .cameraLayer {
-  transition: transform 220ms ease;
+    transition: transform 220ms ease;
 }
 
 .graphZoomControls {
-  position: absolute;
-  bottom: 1rem;
-  left: 50%;
-  z-index: 2;
-  padding: 0.25rem;
-  border-radius: var(--mantine-radius-md);
-  background: color-mix(in srgb, var(--mantine-color-body) 85%, transparent);
-  box-shadow: var(--mantine-shadow-md);
-  transform: translateX(-50%);
-  backdrop-filter: blur(8px);
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    z-index: 2;
+    padding: 0.25rem;
+    border-radius: var(--mantine-radius-md);
+    background: color-mix(in srgb, var(--mantine-color-body) 85%, transparent);
+    box-shadow: var(--mantine-shadow-md);
+    transform: translateX(-50%);
+    backdrop-filter: blur(8px);
 }
 
 .citationDrawer,
 .citationDrawerHeader {
-  background: color-mix(in srgb, var(--etal-color-surface) 78%, transparent);
-  backdrop-filter: blur(16px);
+    background: color-mix(in srgb, var(--etal-color-surface) 78%, transparent);
+    backdrop-filter: blur(16px);
 }
 
 .citationDrawer {
-  border-left: 1px solid color-mix(in srgb, var(--etal-color-border) 35%, transparent);
+    border-left: 1px solid color-mix(in srgb, var(--etal-color-border) 35%, transparent);
 }
 
 .citationDrawerHeader {
-  border-bottom: 1px solid color-mix(in srgb, var(--etal-color-border) 25%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--etal-color-border) 25%, transparent);
 }
 
 .citationDrawerBody {
-  background: transparent;
+    background: transparent;
 }
 
 .visualization > div:not(.networkLoadingOverlay) {
-  color: var(--etal-color-text-muted);
-  font-size: 0.9rem;
+    color: var(--etal-color-text-muted);
+    font-size: 0.9rem;
 }
 
 .networkLoadingOverlay {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: color-mix(in srgb, var(--etal-color-canvas) 65%, transparent);
-  cursor: wait;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--etal-color-canvas) 65%, transparent);
+    cursor: wait;
 }
 
 .networkLoadingMessage {
-  padding: 1rem 1.5rem;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--etal-color-surface-strong) 94%, transparent);
-  box-shadow: var(--mantine-shadow-md);
-  font-family: Inter, sans-serif;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--etal-color-surface-strong) 94%, transparent);
+    box-shadow: var(--mantine-shadow-md);
+    font-family: Inter, sans-serif;
 }
 
 .node {
-  cursor: pointer;
-  stroke: var(--etal-graph-node-outline);
-  stroke-width: 1.5px;
-  stroke-opacity: 0;
-  fill-opacity: 0.2;
+    cursor: pointer;
+    stroke: var(--etal-graph-node-outline);
+    stroke-width: 1.5px;
+    stroke-opacity: 0.35;
+    fill-opacity: 0.25;
 }
 
 .link {
-  stroke: var(--etal-graph-link);
-  stroke-width: 1.5px;
-  stroke-opacity: 0.2;
+    stroke: var(--etal-graph-link);
+    stroke-width: 1.5px;
+    stroke-opacity: 0.2;
 }
 
 .citedNode {
-  stroke: var(--etal-graph-node-cited);
-  stroke-width: 5px;
-  stroke-opacity: 1;
-  fill-opacity: 1;
+    stroke: var(--etal-graph-node-cited);
+    stroke-width: 5px;
+    stroke-opacity: 1;
+    fill-opacity: 1;
 }
 
 .citerNode {
-  stroke: var(--etal-graph-node-citer);
-  stroke-width: 3px;
-  stroke-opacity: 1;
-  fill-opacity: 1;
+    stroke: var(--etal-graph-node-citer);
+    stroke-width: 3px;
+    stroke-opacity: 1;
+    fill-opacity: 1;
 }
 
 .selectedLink {
-  stroke: var(--etal-graph-link-selected);
-  stroke-width: 3px;
-  stroke-opacity: 1;
+    stroke: var(--etal-graph-link-selected);
+    stroke-width: 3px;
+    stroke-opacity: 1;
 }
 
 .oracleNode {
-  stroke-width: 5px;
-  stroke-opacity: 1;
-  fill-opacity: 1;
-  fill: var(--etal-graph-node-oracle) !important;
-  stroke: var(--etal-graph-node-oracle-stroke);
+    stroke-width: 5px;
+    stroke-opacity: 1;
+    fill-opacity: 1;
+    fill: var(--etal-graph-node-oracle) !important;
+    stroke: var(--etal-graph-node-oracle-stroke);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cameraLayer {
-    transition: none;
-  }
+    .cameraLayer {
+        transition: none;
+    }
 }
