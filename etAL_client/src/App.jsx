@@ -1,29 +1,52 @@
 import Navbar from "./components/searchFunctions/Navbar";
 import NetworkGraph from "./components/citationVisualizer/NetworkGraph";
+import NetworkLoadingOverlay from "./components/citationVisualizer/NetworkLoadingOverlay";
 import NetworkMenus from "./components/citationVisualizer/NetworkMenus";
+import WelcomeScreen from "./components/welcome/WelcomeScreen";
 import NetworkGraphProvider from "./contexts/NetworkGraphContext";
+import useNetworkGraphContext from "./hooks/useNetworkGraphContext";
 import { useState } from "react";
 
-function App() {
+function AppContent() {
   const [isCitationMenuOpen, setIsCitationMenuOpen] = useState(false);
   const [citationMenuWidth, setCitationMenuWidth] = useState(0);
+  const { data, loading, loadingPhase, timeToLoadMS } = useNetworkGraphContext();
+  const hasGraph = data !== null;
 
   return (
-    <NetworkGraphProvider>
-      <div className="appShell">
-        <Navbar />
-        <main className="visualizerShell">
+    <div className="appShell">
+      {hasGraph && <Navbar />}
+      <main className="visualizerShell">
+        {hasGraph ? (
           <NetworkGraph
             isCitationMenuOpen={isCitationMenuOpen}
             citationMenuWidth={citationMenuWidth}
           />
-        </main>
+        ) : (
+          <WelcomeScreen />
+        )}
+      </main>
+      {hasGraph && (
         <NetworkMenus
           isOpen={isCitationMenuOpen}
           setIsOpen={setIsCitationMenuOpen}
           onWidthChange={setCitationMenuWidth}
         />
-      </div>
+      )}
+      {loading && (
+        <NetworkLoadingOverlay
+          estimatedLoadingTimeMS={timeToLoadMS}
+          loadingPhase={loadingPhase}
+        />
+      )}
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <NetworkGraphProvider>
+      <AppContent />
     </NetworkGraphProvider>
   );
 }

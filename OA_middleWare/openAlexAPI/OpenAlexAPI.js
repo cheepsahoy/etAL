@@ -99,12 +99,16 @@ class OA_API {
         let fullCites = []
         let path = `works?per-page=200&select=${OA_API.CITATION_WORK_FIELDS}&filter=cites:`
 
+        console.time('FirstQuery')
         let resp = await this._queryAPI('GET', path, paramObj)
+        console.timeEnd('FirstQuery')
         paramObj['&cursor='] = resp.meta.next_cursor
         fullCites = fullCites.concat(resp.results)
 
         while (resp.meta.next_cursor && resp.results.length) {
+            console.time('loopQuerry')
             resp = await this._queryAPI('GET', path, paramObj)
+            console.timeEnd('loopQuerry')
             paramObj['&cursor='] = resp.meta.next_cursor
             fullCites = fullCites.concat(resp.results)
         }

@@ -1,6 +1,11 @@
 import { useContext } from "react";
 import { NetworkGraphContext } from "../contexts/NetworkGraphContext";
 import etalCitationMapper from "../../../OA_middleWare/etAL/citationMapper";
+import {
+  estimateEtAlFetchTimeMS,
+  GRAPH_COMPLETION_ANIMATION_MS,
+  GRAPH_READY_HOLD_MS,
+} from "../frontEndUtils/networkLoading";
 
 //Calling OpenAlex internal etAl functions
 /**
@@ -42,26 +47,35 @@ async function callEtAl(citationObj) {
 }
 
 function useNetworkGraphContext() {
-  const { setState, loading, data, timeToLoadMS, selectedArticle } =
+  const { setState, loading, loadingPhase, data, timeToLoadMS, selectedArticle } =
     useContext(NetworkGraphContext);
 
-  async function loadData(citationObj, loadTimeSeconds) {
+  async function loadData(citationObj) {
     console.log("LOADING", citationObj);
     setState({
       loading: true,
-      timeToLoadMS: loadTimeSeconds ? loadTimeSeconds * 1000 : null,
+      loadingPhase: "fetching",
+      timeToLoadMS: estimateEtAlFetchTimeMS(citationObj.cited_by_count),
       selectedArticle: null,
     });
-    const resp = await callEtAl(citationObj);
-    setState({ data: resp });
 
-    return new Promise((resolve) =>
-      setTimeout(() => {
-        console.log("SETTING LOADING FALSE");
-        setState({ loading: false });
-        resolve();
-      }, 800)
-    );
+    try {
+      const resp = await callEtAl(citationObj);
+      setState({ data: resp, loadingPhase: "completing" });
+
+      await new Promise((resolve) =>
+        setTimeout(
+          resolve,
+          GRAPH_COMPLETION_ANIMATION_MS + GRAPH_READY_HOLD_MS
+        )
+      );
+
+      console.log("SETTING LOADING FALSE");
+      setState({ loading: false, loadingPhase: null });
+    } catch (error) {
+      setState({ loading: false, loadingPhase: null });
+      throw error;
+    }
   }
 
   function setArticle(articleId, isOracle) {
@@ -86,6 +100,7 @@ function useNetworkGraphContext() {
   return {
     // state data:
     loading,
+    loadingPhase,
     data,
     timeToLoadMS,
     selectedArticle,

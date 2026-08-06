@@ -3,6 +3,7 @@ import { createContext, useState } from "react";
 const initialState = {
   data: null,
   loading: false,
+  loadingPhase: null,
   timeToLoadMS: null,
   selectedArticle: null,
 };

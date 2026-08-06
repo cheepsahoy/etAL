@@ -26,7 +26,7 @@ function CitationCard({ citationObj, setSearchResults }) {
         id: selectedWork.title,
       });
 
-      await loadData(selectedWork, (selectedWork.cited_by_count / 200) * 1.5);
+      await loadData(selectedWork);
     } finally {
       setLoading(false);
     }

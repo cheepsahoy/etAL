@@ -1,7 +1,6 @@
 import * as d3 from 'd3'
 import {useCallback, useMemo, useRef, useEffect} from 'react'
 import useNetworkGraphContext from '../../hooks/useNetworkGraphContext'
-import NetworkLoadingOverlay from './NetworkLoadingOverlay'
 import {ActionIcon, Group, Tooltip, useMantineTheme} from '@mantine/core'
 import {Maximize2, Minus, Plus} from 'lucide-react'
 import {getEtalSemanticColors} from '../../theme'
@@ -130,7 +129,7 @@ function NetworkGraph({isCitationMenuOpen, citationMenuWidth}) {
 
     drawerStateRef.current = {isOpen: isCitationMenuOpen, width: citationMenuWidth}
 
-    const {data, selectedArticle, setArticle, loading} = useNetworkGraphContext()
+    const {data, selectedArticle, setArticle} = useNetworkGraphContext()
     console.log('before render', selectedArticle)
 
     const fitGraph = useCallback((animate = true) => {
@@ -422,8 +421,6 @@ function NetworkGraph({isCitationMenuOpen, citationMenuWidth}) {
 
     return (
         <div className="visualization">
-            {loading ? <NetworkLoadingOverlay /> : null}
-
             <svg
                 ref={svgRef}
                 style={{
