@@ -1,3 +1,5 @@
+import {normalizeOpenAlexText} from './openAlexTextUtils.js'
+
 class OA_API {
     #api_email
     #api_token
@@ -10,7 +12,7 @@ class OA_API {
     //-------------Public Functions-----------------
     //note we can request mulitple works with the pipe symbol '|', see
     //https://blog.ourresearch.org/fetch-multiple-dois-in-one-openalex-api-request/
-    //max 50 w/ single API request
+    //max 100 w/ single API request
     //author returns must use the open-alex ID associated with the
 
     /**
@@ -178,7 +180,7 @@ class OA_API {
         if (!resp.ok) {
             throw new Error(`API error: ${resp.status} ${resp.statusText}`)
         }
-        return resp.json()
+        return normalizeOpenAlexText(await resp.json())
     }
 
     /**

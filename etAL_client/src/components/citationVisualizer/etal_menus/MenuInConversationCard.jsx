@@ -82,11 +82,7 @@ function MenuInConversationCard({data, scoreMode = 'citations'}) {
         ]
 
         function buttonHandler() {
-            if (scoreMode === 'oracle') {
-                setArticle(uniqueID, true)
-            } else {
-                setArticle(uniqueID)
-            }
+            setArticle(uniqueID)
             return
         }
 

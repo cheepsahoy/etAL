@@ -1,9 +1,15 @@
 import * as d3 from 'd3'
-import {useCallback, useMemo, useRef, useEffect} from 'react'
+import {useCallback, useMemo, useRef, useEffect, useState} from 'react'
 import useNetworkGraphContext from '../../hooks/useNetworkGraphContext'
-import {ActionIcon, Group, Tooltip, useMantineTheme} from '@mantine/core'
+import {ActionIcon, Group, SegmentedControl, Tooltip, useMantineTheme} from '@mantine/core'
 import {Maximize2, Minus, Plus} from 'lucide-react'
 import {getEtalSemanticColors} from '../../theme'
+import NodeHoverCard from './NodeHoverCard'
+
+const HOVER_DELAY_MS = 150
+const HOVER_CARD_WIDTH = 280
+const HOVER_CARD_HEIGHT_ESTIMATE = 112
+const HOVER_CARD_GAP = 12
 
 //
 function nodeAndLinkMaker(data) {
@@ -123,14 +129,56 @@ function NetworkGraph({isCitationMenuOpen, citationMenuWidth}) {
     const zoomBehaviorRef = useRef()
     const cameraLayerRef = useRef()
     const graphBoundsRef = useRef()
+    const hoverTimerRef = useRef()
     const drawerStateRef = useRef({isOpen: isCitationMenuOpen, width: citationMenuWidth})
+    const [hoverPreview, setHoverPreview] = useState(null)
     const theme = useMantineTheme()
     const graphColors = useMemo(() => getEtalSemanticColors(theme).graph, [theme])
 
     drawerStateRef.current = {isOpen: isCitationMenuOpen, width: citationMenuWidth}
 
-    const {data, selectedArticle, setArticle} = useNetworkGraphContext()
+    const {data, selectedArticle, setArticle, graphMode, setGraphMode} = useNetworkGraphContext()
     console.log('before render', selectedArticle)
+
+    const hideNodePreview = useCallback(() => {
+        window.clearTimeout(hoverTimerRef.current)
+        hoverTimerRef.current = undefined
+        setHoverPreview(null)
+    }, [])
+
+    const showNodePreview = useCallback((event, article) => {
+        window.clearTimeout(hoverTimerRef.current)
+
+        const container = event.currentTarget.ownerSVGElement?.getBoundingClientRect()
+        const nodeBounds = event.currentTarget.getBoundingClientRect()
+        if (!container) return
+
+        const cardWidth = Math.min(HOVER_CARD_WIDTH, Math.max(container.width - HOVER_CARD_GAP * 2, 1))
+        const nodeCenterX = nodeBounds.left - container.left + nodeBounds.width / 2
+        const nodeCenterY = nodeBounds.top - container.top + nodeBounds.height / 2
+        const rightPosition = nodeBounds.right - container.left + HOVER_CARD_GAP
+        const leftPosition = nodeBounds.left - container.left - cardWidth - HOVER_CARD_GAP
+        const placeOutwardRight = nodeCenterX >= container.width / 2
+        const outwardPosition = placeOutwardRight ? rightPosition : leftPosition
+        const alternatePosition = placeOutwardRight ? leftPosition : rightPosition
+        const positionFits = position => position >= HOVER_CARD_GAP && position + cardWidth <= container.width - HOVER_CARD_GAP
+        const desiredLeft = positionFits(outwardPosition) ? outwardPosition : alternatePosition
+        const left = Math.min(
+            Math.max(desiredLeft, HOVER_CARD_GAP),
+            Math.max(container.width - cardWidth - HOVER_CARD_GAP, HOVER_CARD_GAP),
+        )
+        const top = Math.min(
+            Math.max(nodeCenterY - HOVER_CARD_HEIGHT_ESTIMATE / 2, HOVER_CARD_GAP),
+            Math.max(container.height - HOVER_CARD_HEIGHT_ESTIMATE - HOVER_CARD_GAP, HOVER_CARD_GAP),
+        )
+
+        hoverTimerRef.current = window.setTimeout(() => {
+            setHoverPreview({article, position: {left, top}})
+            hoverTimerRef.current = undefined
+        }, HOVER_DELAY_MS)
+    }, [])
+
+    useEffect(() => () => window.clearTimeout(hoverTimerRef.current), [])
 
     const fitGraph = useCallback((animate = true) => {
         if (!svgRef.current || !zoomBehaviorRef.current || !graphBoundsRef.current) return
@@ -217,6 +265,7 @@ function NetworkGraph({isCitationMenuOpen, citationMenuWidth}) {
         const zoomBehavior = d3
             .zoom()
             .scaleExtent([0.25, 8])
+            .on('start.hoverPreview', hideNodePreview)
             .on('zoom', event => zoomLayer.attr('transform', event.transform))
 
         zoomBehaviorRef.current = zoomBehavior
@@ -260,6 +309,8 @@ function NetworkGraph({isCitationMenuOpen, citationMenuWidth}) {
             .attr('r', d => sizeScale(d.centrality_score + 1))
             .style('fill', d => colorScale(d.centrality_score + 1))
             .attr('class', d => `node node-${d.id}`)
+            .on('pointerenter.hoverPreview', showNodePreview)
+            .on('pointerleave.hoverPreview', hideNodePreview)
 
         const centerStrength = nodes.length > 2 ? 1 : 0 //with less than 2 the radial force is overwhelmed by the center force
         const simulation = d3
@@ -300,13 +351,14 @@ function NetworkGraph({isCitationMenuOpen, citationMenuWidth}) {
             simulation.stop()
             svg.on('.zoom', null)
         }
-    }, [data, fitGraph, graphColors])
+    }, [data, fitGraph, graphColors, hideNodePreview, showNodePreview])
 
     useEffect(() => {
+        hideNodePreview()
         if (!cameraLayerRef.current) return
         const drawerWidth = isCitationMenuOpen ? citationMenuWidth : 0
         cameraLayerRef.current.attr('transform', `translate(${-drawerWidth / 2} 0)`)
-    }, [citationMenuWidth, isCitationMenuOpen])
+    }, [citationMenuWidth, hideNodePreview, isCitationMenuOpen])
 
     useEffect(() => {
         const svgElement = svgRef.current
@@ -345,7 +397,6 @@ function NetworkGraph({isCitationMenuOpen, citationMenuWidth}) {
             return
         }
         const targetID = selectedArticle.id
-        const oracleStatus = selectedArticle.oracle
         if (targetID === null) {
             return
         }
@@ -353,7 +404,7 @@ function NetworkGraph({isCitationMenuOpen, citationMenuWidth}) {
 
         const citingObj = {}
 
-        if (oracleStatus === true) {
+        if (graphMode === 'oracle') {
             graph.selectAll('.link').classed('selectedLink', d => {
                 if (d.source.id === targetID) {
                     citingObj[d.target.id] = true
@@ -408,7 +459,7 @@ function NetworkGraph({isCitationMenuOpen, citationMenuWidth}) {
                     }
                 })
         }
-    }, [selectedArticle])
+    }, [graphMode, selectedArticle])
 
     function changeZoom(scaleFactor) {
         if (!zoomBehaviorRef.current) return
@@ -428,23 +479,42 @@ function NetworkGraph({isCitationMenuOpen, citationMenuWidth}) {
                     height: '100%',
                 }}
             />
+            {hoverPreview && (
+                <NodeHoverCard
+                    article={hoverPreview.article}
+                    graphMode={graphMode}
+                    position={hoverPreview.position}
+                />
+            )}
             {data && (
-                <Group className="graphZoomControls" gap={4}>
-                    <Tooltip label="Zoom out">
-                        <ActionIcon variant="default" aria-label="Zoom out" onClick={() => changeZoom(0.75)}>
-                            <Minus size={16} />
-                        </ActionIcon>
-                    </Tooltip>
-                    <Tooltip label="Reset view">
-                        <ActionIcon variant="default" aria-label="Reset graph view" onClick={resetZoom}>
-                            <Maximize2 size={15} />
-                        </ActionIcon>
-                    </Tooltip>
-                    <Tooltip label="Zoom in">
-                        <ActionIcon variant="default" aria-label="Zoom in" onClick={() => changeZoom(1.25)}>
-                            <Plus size={16} />
-                        </ActionIcon>
-                    </Tooltip>
+                <Group className="graphZoomControls" gap="xs" wrap="nowrap">
+                    <SegmentedControl
+                        size="xs"
+                        value={graphMode}
+                        onChange={setGraphMode}
+                        aria-label="Graph relationship mode"
+                        data={[
+                            {label: 'Citations', value: 'citations'},
+                            {label: 'Oracles', value: 'oracle'},
+                        ]}
+                    />
+                    <Group gap={4} wrap="nowrap">
+                        <Tooltip label="Zoom out">
+                            <ActionIcon variant="default" aria-label="Zoom out" onClick={() => changeZoom(0.75)}>
+                                <Minus size={16} />
+                            </ActionIcon>
+                        </Tooltip>
+                        <Tooltip label="Reset view">
+                            <ActionIcon variant="default" aria-label="Reset graph view" onClick={resetZoom}>
+                                <Maximize2 size={15} />
+                            </ActionIcon>
+                        </Tooltip>
+                        <Tooltip label="Zoom in">
+                            <ActionIcon variant="default" aria-label="Zoom in" onClick={() => changeZoom(1.25)}>
+                                <Plus size={16} />
+                            </ActionIcon>
+                        </Tooltip>
+                    </Group>
                 </Group>
             )}
         </div>

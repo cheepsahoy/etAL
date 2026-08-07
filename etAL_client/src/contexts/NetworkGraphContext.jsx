@@ -6,6 +6,7 @@ const initialState = {
   loadingPhase: null,
   timeToLoadMS: null,
   selectedArticle: null,
+  graphMode: "citations",
 };
 
 export const NetworkGraphContext = createContext({});

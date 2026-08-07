@@ -47,8 +47,15 @@ async function callEtAl(citationObj) {
 }
 
 function useNetworkGraphContext() {
-  const { setState, loading, loadingPhase, data, timeToLoadMS, selectedArticle } =
-    useContext(NetworkGraphContext);
+  const {
+    setState,
+    loading,
+    loadingPhase,
+    data,
+    timeToLoadMS,
+    selectedArticle,
+    graphMode,
+  } = useContext(NetworkGraphContext);
 
   async function loadData(citationObj) {
     console.log("LOADING", citationObj);
@@ -57,6 +64,7 @@ function useNetworkGraphContext() {
       loadingPhase: "fetching",
       timeToLoadMS: estimateEtAlFetchTimeMS(citationObj.cited_by_count),
       selectedArticle: null,
+      graphMode: "citations",
     });
 
     try {
@@ -78,23 +86,18 @@ function useNetworkGraphContext() {
     }
   }
 
-  function setArticle(articleId, isOracle) {
-    console.log(
-      "running from usenetwork graphcontext",
-      articleId,
-      selectedArticle
-    );
+  function setArticle(articleId) {
     setState({
       selectedArticle: {
         id: articleId,
-        oracle:
-          typeof isOracle === "boolean"
-            ? isOracle
-            : articleId === selectedArticle?.id
-            ? !selectedArticle.oracle
-            : false,
       },
     });
+  }
+
+  function setGraphMode(mode) {
+    if (mode === "citations" || mode === "oracle") {
+      setState({ graphMode: mode });
+    }
   }
 
   return {
@@ -104,10 +107,12 @@ function useNetworkGraphContext() {
     data,
     timeToLoadMS,
     selectedArticle,
+    graphMode,
 
     // actions
     loadData,
     setArticle,
+    setGraphMode,
   };
 }
 

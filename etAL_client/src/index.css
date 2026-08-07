@@ -117,6 +117,15 @@ input {
     backdrop-filter: blur(8px);
 }
 
+.nodeHoverCard {
+    position: absolute;
+    z-index: 3;
+    width: min(280px, calc(100vw - 1.5rem));
+    background: color-mix(in srgb, var(--etal-color-surface-strong) 92%, transparent);
+    pointer-events: none;
+    backdrop-filter: blur(10px);
+}
+
 .citationDrawer,
 .citationDrawerHeader {
     background: color-mix(in srgb, var(--etal-color-surface) 78%, transparent);
