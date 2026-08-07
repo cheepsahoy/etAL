@@ -50,6 +50,15 @@ input {
     overflow-y: auto;
 }
 
+.selectedArticleViewBox {
+    width: min(360px, calc(100vw - (var(--mantine-spacing-lg) * 2)));
+}
+
+.selectedArticleViewBox > .mantine-Paper-root {
+    background: color-mix(in srgb, var(--etal-color-surface) 88%, transparent);
+    backdrop-filter: blur(12px);
+}
+
 .welcomeScreen {
     box-sizing: border-box;
     display: flex;

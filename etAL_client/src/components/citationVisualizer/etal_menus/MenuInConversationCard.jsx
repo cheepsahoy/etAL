@@ -149,11 +149,11 @@ function MenuInConversationCard({data, scoreMode = 'citations'}) {
                     <Text c="oracleGreen.5" size="sm" fw={700} ta="right" style={{flexShrink: 0}}>
                         {scoreMode === 'oracle' ? (
                             <>
-                                Cites {score.toLocaleString()} {score === 1 ? 'Article' : 'Articles'}
+                                Cites {score.toLocaleString()} {score === 1 ? 'Work' : 'Works'}
                             </>
                         ) : (
                             <>
-                                Cited {score.toLocaleString()} {score === 1 ? 'Time' : 'Times'}
+                                Cited by {score.toLocaleString()} {score === 1 ? 'Work' : 'Works'}
                             </>
                         )}
                     </Text>

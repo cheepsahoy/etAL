@@ -2,6 +2,7 @@ import Navbar from "./components/searchFunctions/Navbar";
 import NetworkGraph from "./components/citationVisualizer/NetworkGraph";
 import NetworkLoadingOverlay from "./components/citationVisualizer/NetworkLoadingOverlay";
 import NetworkMenus from "./components/citationVisualizer/NetworkMenus";
+import SelectedArticleViewBox from "./components/citationVisualizer/SelectedArticleViewBox";
 import WelcomeScreen from "./components/welcome/WelcomeScreen";
 import NetworkGraphProvider from "./contexts/NetworkGraphContext";
 import useNetworkGraphContext from "./hooks/useNetworkGraphContext";
@@ -33,6 +34,7 @@ function AppContent() {
           onWidthChange={setCitationMenuWidth}
         />
       )}
+      {hasGraph && <SelectedArticleViewBox leftOffset="var(--mantine-spacing-lg)" />}
       {loading && (
         <NetworkLoadingOverlay
           estimatedLoadingTimeMS={timeToLoadMS}
