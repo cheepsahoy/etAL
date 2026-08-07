@@ -1,5 +1,5 @@
-import MenuInConversation from './etal_menus/MenuInConversation'
-import MenuOracles from './etal_menus/MenuOracles'
+import MenuInConversation from '../citation_menus/MenuInConversation'
+import MenuOracles from '../citation_menus/MenuOracles'
 import {PanelRightOpen} from 'lucide-react'
 import {ActionIcon, Affix, Drawer, Group, Tabs, Text, Tooltip} from '@mantine/core'
 import {useEffect, useRef} from 'react'

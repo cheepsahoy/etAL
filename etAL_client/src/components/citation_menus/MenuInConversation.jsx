@@ -1,6 +1,6 @@
 import {useState, useMemo, useEffect} from 'react'
 import MenuInConversationResultsPage from './MenuInConversationResultsPage'
-import useNetworkGraphContext from '../../../hooks/useNetworkGraphContext'
+import useNetworkGraphContext from '../../hooks/useNetworkGraphContext'
 import {Paper, Title} from '@mantine/core'
 
 function arraySubdivider(array) {

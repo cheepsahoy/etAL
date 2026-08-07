@@ -1,4 +1,4 @@
-import useNetworkGraphContext from '../../../hooks/useNetworkGraphContext'
+import useNetworkGraphContext from '../../hooks/useNetworkGraphContext'
 import {Button, Group, HoverCard, Paper, Stack, Table, Text} from '@mantine/core'
 
 function lastNameExtractor(string) {
