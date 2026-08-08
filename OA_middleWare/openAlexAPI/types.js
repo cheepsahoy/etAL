@@ -15,6 +15,7 @@
  * @property {string} title
  * @property {string} pub_date
  * @property {string} source
+ * @property {string} publication_location
  * @property {string} citation
  * @property {object} authors
  * @property {object} outgoing_cites

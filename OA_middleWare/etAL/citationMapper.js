@@ -15,6 +15,8 @@ class etalCitationMapper {
             doi: initialGetCite.doi ?? 'No DOI on record',
             id: this.centralCitationID,
             source: initialGetCite.primary_location?.source?.display_name ?? 'No primary source on record',
+            publication_location:
+                initialGetCite.primary_location?.landing_page_url ?? 'No publication location on record',
             title: initialGetCite.title ?? 'No primary title on record',
             pub_date: initialGetCite.publication_date ?? 'No publication date on record',
             citation: null,
@@ -70,6 +72,8 @@ class etalCitationMapper {
                 title: artifact.title ?? 'No primary title on record',
                 pub_date: artifact.publication_date ?? 'No publication date on record',
                 source: artifact.primary_location?.source?.display_name ?? 'No primary source on record',
+                publication_location:
+                    artifact.primary_location?.landing_page_url ?? 'No publication location on record',
                 citation: null,
                 authors: {},
                 outgoing_cites: {},

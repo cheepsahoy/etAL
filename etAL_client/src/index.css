@@ -51,7 +51,7 @@ input {
 }
 
 .selectedArticleViewBox {
-    width: min(360px, calc(100vw - (var(--mantine-spacing-lg) * 2)));
+    width: min(300px, calc(100vw - (var(--mantine-spacing-lg) * 2)));
 }
 
 .selectedArticleViewBox > .mantine-Paper-root {
