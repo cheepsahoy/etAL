@@ -31,11 +31,7 @@ function SuggestionList({
   if (searchResults.waiting) {
     return null;
   } else if (searchResults.id) {
-    return (
-      <Paper className="searchSuggestions" p="md" radius="md" shadow="lg">
-        <Text size="sm">Enjoy exploring {searchResults.id}</Text>
-      </Paper>
-    );
+    return null;
   } else if (results.length === 0) {
     return (
       <Paper ref={suggestionsRef} className="searchSuggestions" p="md" radius="md" shadow="lg">

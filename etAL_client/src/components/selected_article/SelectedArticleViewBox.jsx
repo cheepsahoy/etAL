@@ -77,20 +77,6 @@ function SelectedArticleViewBox({leftOffset = 'var(--mantine-spacing-lg)'}) {
                             <Text c="milkyPurple.4" fw={700} size="xs" tt="uppercase">
                                 Selected Work
                             </Text>
-                            <Tooltip
-                                label="Citations are works in this graph that cite the selected work. References are works in this graph cited by the selected work."
-                                multiline
-                                w={280}
-                                withArrow>
-                                <Text
-                                    component="span"
-                                    c="amberPulse.4"
-                                    fw={700}
-                                    size="xs"
-                                    aria-label="Explain citation counts">
-                                    [?]
-                                </Text>
-                            </Tooltip>
                         </Group>
                         <Title order={2} size="sm">
                             {displayValue(article.title, 'No title on record')}

@@ -151,9 +151,6 @@ class OA_API {
 
         let payload = {
             method: methodUpper,
-            headers: {
-                'User-Agent': `mailto:${this.#api_email}`,
-            },
         }
 
         if (this.#api_token) {
